@@ -18,4 +18,4 @@ This is the one size fits all tool for referees,  containing your basic stopwatc
 - Download the file
 - Open the file, this will open a browser tab that contains the Ref Suite
 
-Do note that the APK version has some strange scaling issues compared to the HTML file
+Do note that the APK version has some strange scaling issues compared to the HTML file, alternatively you can use the github page here: https://asmana1.github.io/GBZ-Ref-Suite
