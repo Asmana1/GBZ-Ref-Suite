@@ -13,7 +13,7 @@ Installation:
 - Download the apk file onto your computer
 - Download sidequest (advanced installer) from https://sidequestvr.com/setup-howto
 - Log into sidequest
-- Connect your headset (make sure debeloper mode is enabled, if not you can look here to do it https://knowledge.vr-expert.com/kb/how-to-activate-developer-mode-on-the-meta-quest-2-or-quest-pro/)
+- Connect your headset (make sure developer mode is enabled, if not you can look here to do it https://knowledge.vr-expert.com/kb/how-to-activate-developer-mode-on-the-meta-quest-2-or-quest-pro/)
 - Drag and drop the apk and it will install to the unknown sources tab
 
 ### HTML
