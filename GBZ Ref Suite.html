@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GBZ Ref Suite</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #0a0a0a;
+      color: #fff;
+      font-family: 'Share Tech Mono', monospace;
+      padding: 40px;
+    }
+
+    .console-header {
+      text-align: center;
+      font-size: 2.2rem;
+      color: hotpink;
+      margin-bottom: 40px;
+      letter-spacing: 2px;
+    }
+
+    .module {
+      margin-bottom: 60px;
+      padding: 30px;
+      border-left: 6px solid hotpink;
+      border-radius: 8px;
+      background-color: #1a1a1a;
+    }
+
+    .module h2 {
+      font-size: 1.6rem;
+      color: white;
+      margin-bottom: 20px;
+      border-bottom: 2px solid hotpink;
+      padding-bottom: 10px;
+      text-align: left;
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      font-size: 1rem;
+      padding: 10px 18px;
+      border-radius: 6px;
+      border: 2px solid hotpink;
+      background-color: transparent;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:hover {
+      background-color: hotpink;
+      color: black;
+      box-shadow: 0 0 10px yellow;
+    }
+
+    .status {
+      font-size: 1.2rem;
+      line-height: 1.6;
+      color: white;
+    }
+
+    .status span {
+      color: yellow;
+      font-weight: bold;
+    }
+
+    .score-display {
+      font-size: 1.8rem;
+      text-align: left;
+      color: yellow;
+      margin-top: 10px;
+    }
+
+    .log-panel {
+      background-color: #121212;
+      border-left: 6px solid yellow;
+      border-radius: 8px;
+      padding: 24px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .log-panel h2 {
+      font-size: 1.4rem;
+      color: white;
+      margin-bottom: 16px;
+      border-bottom: 2px solid yellow;
+      padding-bottom: 6px;
+    }
+
+    .log-entry {
+      font-size: 1rem;
+      margin-bottom: 8px;
+      color: #ccc;
+    }
+
+    .log-entry span {
+      color: hotpink;
+      font-weight: bold;
+    }
+
+    .log-entry.score {
+      color: yellow;
+    }
+
+.log-entry.foul.minor {
+  color: #ffcc00;
+}
+
+.log-entry.foul.major {
+  color: orange;
+}
+
+.log-entry.foul.disqualifying {
+  color: red;
+  font-weight: bold;
+}
+
+.console-subtext {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #ccc;
+  margin-top: -20px;
+  margin-bottom: 10px;
+}
+
+.settings-button {
+  display: block;
+  margin: 0 auto 30px auto;
+  font-size: 0.9rem;
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 2px solid hotpink;
+  background-color: transparent;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.settings-button:hover {
+  background-color: hotpink;
+  color: black;
+  box-shadow: 0 0 8px yellow;
+}
+
+#scrollHint {
+  position: fixed;
+  bottom: 20px;
+  left: 5px;
+  font-size: 3.5rem; /* Bigger */
+  color: white;
+  text-shadow: 0 0 12px yellow, 0 0 24px yellow; /* Yellow glow */
+  opacity: 0.9;
+  cursor: pointer;
+  display: none;
+  animation: pulseDown 1.2s infinite;
+  z-index: 1000;
+}
+
+@keyframes pulseDown {
+  0%   { transform: translateY(0);   opacity: 0.9; }
+  50%  { transform: translateY(10px); opacity: 1;   }
+  100% { transform: translateY(0);   opacity: 0.9; }
+}
+
+  </style>
+</head>
+<body>
+
+  <div class="console-header">GBZ Ref Suite</div>
+<div class="console-subtext">Press TAB or press the button below for more options!</div>
+<button class="settings-button" onclick="toggleSettings()">⚙️ Open Settings</button>
+
+  <!-- Match Control -->
+  <div class="module">
+    <h2>Match Control</h2>
+    <div class="button-group">
+      <button onclick="logAction('Timer started'); startTimer()">Start</button>
+      <button onclick="logAction('Timer paused'); pauseTimer()">Pause</button>
+      <button onclick="logAction('Timer stopped'); stopTimer()">Stop</button>
+      <button onclick="logAction('Saved time reset'); resetSavedTime()">Reset Saved</button>
+    </div>
+    <div class="button-group">
+      <button onclick="logAction('Round added'); addRound()">+ Round</button>
+      <button onclick="logAction('Round removed'); removeRound()">− Round</button>
+      <button onclick="logAction('Max rounds increased'); increaseMaxRounds()">+ Max</button>
+      <button onclick="logAction('Max rounds decreased'); decreaseMaxRounds()">− Max</button>
+<button onclick="switchGame()">Switch Game</button>
+    </div>
+<div class="status">
+  Global Time: <span id="globalTime">00:00</span><br>
+  Saved Time: <span id="savedTime">--:--</span><br>
+  Round: <span id="currentRound">1</span> / <span id="totalRounds">8</span><br>
+  Game: <span id="currentGame">1</span> / 2
+</div>
+  </div>
+
+  <!-- Score Control -->
+  <div class="module">
+    <h2>Score Control</h2>
+    <div class="button-group">
+      <button onclick="team1Score++ ; updateScore(); logAction('Team 1 score increased', true)">+ Team 1</button>
+      <button onclick="team1Score-- ; updateScore(); logAction('Team 1 score decreased', true)">− Team 1</button>
+      <button onclick="team2Score++ ; updateScore(); logAction('Team 2 score increased', true)">+ Team 2</button>
+      <button onclick="team2Score-- ; updateScore(); logAction('Team 2 score decreased', true)">− Team 2</button>
+    </div>
+    <div class="score-display">
+      Team 1: <span id="team1Score">0</span><br>
+      Team 2: <span id="team2Score">0</span>
+    </div>
+  </div>
+
+<!-- Tag Panel -->
+<div class="module">
+  <h2>Tagging Status</h2>
+  <div class="button-group">
+    <button onclick="setTagging('Team 1')">Tagging: Team 1</button>
+    <button onclick="setTagging('Team 2')">Tagging: Team 2</button>
+    <button onclick="setTagging('None')">Clear Tagging</button>
+    <button onclick="randomTagging()">🎲 Random Tag</button>
+  </div>
+  <div class="status">Current Tagging: <span id="taggingStatus">None</span></div>
+</div>
+
+
+<!-- Foul Panel -->
+<div class="module">
+  <h2>Foul Tracker</h2>
+
+  <div class="button-group">
+    <button onclick="recordFoul('Team 1', 'Minor')">Team 1 — Minor</button>
+    <button onclick="recordFoul('Team 1', 'Major')">Team 1 — Major</button>
+    <button onclick="recordFoul('Team 1', 'Disqualifying')">Team 1 — Disqualifying</button>
+  </div>
+
+  <div class="button-group">
+    <button onclick="recordFoul('Team 2', 'Minor')">Team 2 — Minor</button>
+    <button onclick="recordFoul('Team 2', 'Major')">Team 2 — Major</button>
+    <button onclick="recordFoul('Team 2', 'Disqualifying')">Team 2 — Disqualifying</button>
+  </div>
+
+</div>
+
+  <!-- Log Panel -->
+  <div class="log-panel">
+    <h2>Match Log</h2>
+    <div id="logContainer"></div>
+  </div>
+<button onclick="exportMatchLog()">Export Match Log</button>
+</div>
+
+<div id="settingsPanel" style="display:none; position:fixed; top:40px; right:40px; background:#1a1a1a; border:2px solid hotpink; padding:20px; border-radius:8px; z-index:999; font-family:'Share Tech Mono', monospace; color:white;">
+  <h2 style="color:hotpink; margin-bottom:10px;">Ref Settings</h2>
+  <label><input type="checkbox" id="toggleRecap" checked> Auto Round Recap</label><br>
+  <label><input type="checkbox" id="toggleSystemLogs" checked> Show System Logs</label><br>
+  <label><input type="checkbox" id="toggleMVP" checked> MVP Suggestions (FUTURE)</label><br>
+  <label><input type="checkbox" id="toggleExport" checked> Match Export Button</label><br>
+  <label><input type="checkbox" id="toggleAnalysis" checked> Survival Analysis</label><br>
+</div>
+<div id="scrollHint">⬇</div>
+  <script>
+    let globalTime = 0;
+    let savedTime = null;
+    let currentRound = 1;
+    let totalRounds = 8;
+    let timerInterval = null;
+    let team1Score = 0;
+    let team2Score = 0;
+    let countdownInterval = null;
+    let currentTagging = 'None';
+    let currentGame = 1;
+          let performanceLog = [];
+
+
+    function formatTime(t) {
+      const m = String(Math.floor(t / 60)).padStart(2, '0');
+      const s = String(t % 60).padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+ function updateDisplay() {
+  document.getElementById('globalTime').textContent = formatTime(globalTime);
+  document.getElementById('savedTime').textContent = savedTime !== null ? formatTime(savedTime) : '--:--';
+  document.getElementById('currentRound').textContent = currentRound;
+  document.getElementById('totalRounds').textContent = totalRounds;
+
+  const gameDisplay = document.getElementById('currentGame');
+  if (gameDisplay) gameDisplay.textContent = currentGame;
+}
+
+    function updateScore() {
+      document.getElementById('team1Score').textContent = team1Score;
+      document.getElementById('team2Score').textContent = team2Score;
+    }
+
+function startTimer() {
+  if (timerInterval || countdownInterval) return;
+
+ const alreadyPlayed = performanceLog.filter(e => e.round === currentRound && e.game === currentGame);
+if (alreadyPlayed.length >= 1 && globalTime === 0) {
+  logAction(`Game ${currentGame} of Round ${currentRound} already logged — timer blocked`);
+  return;
+}
+
+  let countdown = 10;
+  const globalDisplay = document.getElementById('globalTime');
+  globalDisplay.textContent = `Starting in ${countdown}s`;
+
+  countdownInterval = setInterval(() => {
+    countdown--;
+    globalDisplay.textContent = countdown > 0 ? `Starting in ${countdown}s` : 'Starting...';
+    if (countdown <= 0) {
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+      globalTime = 0;
+      updateDisplay();
+      timerInterval = setInterval(() => {
+        globalTime++;
+        updateDisplay();
+        if (globalTime >= 180) {
+          stopTimer();
+          logAction('Timer capped at 3 minutes and auto-stopped');
+        }
+      }, 1000);
+    }
+  }, 1000);
+}
+
+function stopTimer() {
+  // Stop all timers
+  pauseTimer();
+  clearInterval(countdownInterval);
+  countdownInterval = null;
+
+  // Save and reset time
+  // Save time only if Game 1 just ended
+if (currentGame === 1) {
+  savedTime = globalTime;
+}
+globalTime = 0;
+
+  // Log performance for the game that just ended
+  performanceLog.push({
+    round: currentRound,
+    game: currentGame,
+    taggingTeam: currentTagging,
+    runnerTeam: currentTagging === 'Team 1' ? 'Team 2' : 'Team 1',
+    duration: savedTime
+  });
+
+  // Flip tagging for next game
+  if (currentTagging === 'Team 1') {
+    setTagging('Team 2');
+  } else if (currentTagging === 'Team 2') {
+    setTagging('Team 1');
+  } else {
+    setTagging('None');
+  }
+
+  // Determine what just ended
+  const justEndedGame = currentGame;
+
+  // If Game 1 ended → flip to Game 2 and prompt manual start
+  if (justEndedGame === 1) {
+    currentGame = 2;
+    logAction(`Game 1 complete — press Start to begin Game 2`);
+    updateDisplay();
+    return;
+  }
+
+  // If Game 2 ended → wrap the round, then reset for next round
+  // Capture the completed round number first
+  const completedRound = currentRound;
+
+  // Advance round and reset game counter BEFORE running analysis/recap
+  currentRound++;
+  currentGame = 1;
+
+  // Log round transition
+  logAction(`Round ${completedRound} complete — advancing to Round ${currentRound} and resetting to Game 1`);
+
+  // Try analysis and recap; do not allow failures to block state updates
+  try {
+    analyzePerformance();
+  } catch (e) {
+    console.warn('analyzePerformance error:', e);
+    logToLogPanel('Analysis failed this round (logged for review)');
+  }
+
+  try {
+    generateRoundRecap(completedRound);
+  } catch (e) {
+    console.warn('generateRoundRecap error:', e);
+    logToLogPanel('Round recap failed (logged for review)');
+  }
+
+  // Final display update
+  updateDisplay();
+}
+    function pauseTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+
+    function resetSavedTime() {
+      savedTime = null;
+      updateDisplay();
+    }
+
+    function addRound() {
+      if (currentRound < totalRounds) currentRound++;
+      updateDisplay();
+    }
+
+    function removeRound() {
+      if (currentRound > 1) currentRound--;
+      updateDisplay();
+    }
+
+    function increaseMaxRounds() {
+      totalRounds++;
+      updateDisplay();
+    }
+
+    function decreaseMaxRounds() {
+      if (totalRounds > 1) totalRounds--;
+      if (currentRound > totalRounds) currentRound = totalRounds;
+      updateDisplay();
+    }
+
+function setTagging(team) {
+  currentTagging = team;
+  document.getElementById('taggingStatus').textContent = team;
+  logAction(`Tagging switched to ${team}`);
+}
+
+function randomTagging() {
+  const team = Math.random() < 0.5 ? 'Team 1' : 'Team 2';
+  setTagging(team);
+  logAction(`Randomly selected ${team} to tag`);
+}
+
+function recordFoul(team, type) {
+  const time = formatTime(globalTime);
+  const round = currentRound;
+  const tagging = currentTagging;
+  const entry = document.createElement('div');
+  entry.className = 'log-entry foul ' + type.toLowerCase();
+  entry.innerHTML = `<span>[${time}]</span> (Round ${round}) ${tagging} tagging — ${team} committed a ${type} foul`;
+  document.getElementById('logContainer').prepend(entry);
+}
+
+
+
+function switchGame() {
+  currentGame = currentGame === 1 ? 2 : 1;
+  updateDisplay();
+  logAction(`Game manually switched to Game ${currentGame}`);
+}
+
+function analyzePerformance() {
+if (!refSettings.survivalAnalysis) return;
+  if (performanceLog.length < 2) return;
+
+  const runnerStats = {};
+  const roundDurations = {};
+
+  performanceLog.forEach(entry => {
+    const { runnerTeam, round, duration } = entry;
+
+    // Track runner durations
+    if (!runnerStats[runnerTeam]) runnerStats[runnerTeam] = [];
+    runnerStats[runnerTeam].push(duration);
+
+    // Track round durations
+    if (!roundDurations[round]) roundDurations[round] = [];
+    roundDurations[round].push(duration);
+  });
+
+  // Find average survival per team
+  for (const team in runnerStats) {
+    const times = runnerStats[team];
+    const avg = times.reduce((a, b) => a + b, 0) / times.length;
+    const fullSurvivals = times.filter(t => t >= 180).length;
+    logAction(`${team} average survival: ${formatTime(Math.round(avg))} (${fullSurvivals} full holds)`);
+  }
+
+  // Find fastest round
+  let fastestRound = null;
+  let fastestTime = Infinity;
+  for (const round in roundDurations) {
+    const total = roundDurations[round].reduce((a, b) => a + b, 0);
+    if (total < fastestTime) {
+      fastestTime = total;
+      fastestRound = round;
+    }
+  }
+
+  logAction(`Fastest round: Round ${fastestRound} with total survival ${formatTime(fastestTime)}`);
+}
+
+function generateRoundRecap(roundNum) {
+if (!refSettings.autoRecap) return;
+  const entries = performanceLog.filter(e => e.round === roundNum);
+  if (entries.length < 2) return;
+
+  const recapLines = [`— ROUND ${roundNum} RECAP —`];
+  let scoreChange = { 'Team 1': 0, 'Team 2': 0 };
+
+  // Survival comparison
+  entries.forEach(e => {
+    const time = formatTime(e.duration);
+    recapLines.push(`${e.runnerTeam} ran for ${time}`);
+  });
+
+  const [game1, game2] = entries;
+  if (game1.duration !== 180 || game2.duration !== 180) {
+    const winner = game1.duration > game2.duration ? game1.runnerTeam : game2.runnerTeam;
+    scoreChange[winner]++;
+    recapLines.push(`${winner} awarded +1 point for longer survival`);
+  } else {
+    recapLines.push(`Both teams survived full 3:00 — no score change`);
+  }
+
+  // Apply score
+  team1Score += scoreChange['Team 1'];
+  team2Score += scoreChange['Team 2'];
+  updateScore();
+
+  // Log recap
+  recapLines.forEach(line => logToLogPanel(line));
+}
+
+function exportMatchLog() {
+if (!refSettings.matchExport) return;
+  const logEntries = document.querySelectorAll('#logContainer .log-entry');
+  let logText = '— GBZ MATCH LOG —\n\n';
+
+  logEntries.forEach(entry => {
+    logText += entry.textContent.trim() + '\n';
+  });
+
+  // Show in popup
+  const logWindow = window.open('', 'MatchLogExport', 'width=600,height=600');
+  logWindow.document.write('<pre style="white-space:pre-wrap;font-family:monospace;padding:20px;background:#0a0a0a;color:#fff;">' + logText + '</pre>');
+  logWindow.document.title = 'GBZ Match Log Export';
+
+  // Trigger download
+  const blob = new Blob([logText], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'GBZ_Match_Log.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+let refSettings = {
+  autoRecap: true,
+  showSystemLogs: true,
+  mvpSuggestions: true,
+  matchExport: true,
+  survivalAnalysis: true
+};
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    const panel = document.getElementById('settingsPanel');
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  }
+});
+
+document.getElementById('toggleRecap').addEventListener('change', function() {
+  refSettings.autoRecap = this.checked;
+});
+document.getElementById('toggleSystemLogs').addEventListener('change', function() {
+  refSettings.showSystemLogs = this.checked;
+});
+document.getElementById('toggleMVP').addEventListener('change', function() {
+  refSettings.mvpSuggestions = this.checked;
+});
+document.getElementById('toggleExport').addEventListener('change', function() {
+  refSettings.matchExport = this.checked;
+  document.querySelector('[onclick="exportMatchLog()"]').style.display = this.checked ? 'inline-block' : 'none';
+});
+document.getElementById('toggleAnalysis').addEventListener('change', function() {
+  refSettings.survivalAnalysis = this.checked;
+});
+
+function toggleSettings() {
+  const panel = document.getElementById('settingsPanel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+function checkScrollHint() {
+  const scrollHint = document.getElementById('scrollHint');
+  const atBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 5;
+  scrollHint.style.display = atBottom ? 'none' : 'block';
+}
+
+// Run on scroll and on load
+window.addEventListener('scroll', checkScrollHint);
+window.addEventListener('load', checkScrollHint);
+
+// Clicking the arrow scrolls to bottom
+document.getElementById('scrollHint').addEventListener('click', () => {
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+});
+
+// Don't add beyond here
+
+function logAction(message, isScore = false) {
+if (!refSettings.showSystemLogs) return;
+  const time = formatTime(globalTime);
+  const round = currentRound;
+  const game = currentGame;
+  const tagging = currentTagging;
+
+  const entry = document.createElement('div');
+  entry.className = 'log-entry' + (isScore ? ' score' : '');
+  entry.innerHTML = `<span>[${time}]</span> (Round ${round}, Game ${game}) ${tagging} tagging — ${message}`;
+  document.getElementById('logContainer').prepend(entry);
+}
+
+function logToLogPanel(message) {
+  if (!refSettings.showSystemLogs) return;
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.innerHTML = `<span>[SYSTEM]</span> ${message}`;
+  document.getElementById('logContainer').prepend(entry);
+}
+
+updateDisplay();
+    updateScore();
+  </script>
+</body>
+</html>
