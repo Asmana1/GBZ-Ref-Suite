@@ -2,273 +2,765 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>GBZ Ref Suite</title>
+  <title>GBZ Ref Suite - Command Center</title>
   <style>
+    /* CSS Variables for Dynamic Colors */
+    :root {
+        --main-accent: #ff69b4; /* Default Magenta */
+        --dark-bg: #0d1117;
+        --module-bg: #161b22;
+        --border-color: #30363d;
+        --text-color: #c9d1d9;
+        --highlight-text: #ffffff;
+    }
+
+    /* ------------------------------------- */
+    /* GLOBAL & STRUCTURE */
+    /* ------------------------------------- */
     body {
-      margin: 0;
-      background-color: #0a0a0a;
-      color: #fff;
-      font-family: 'Share Tech Mono', monospace;
-      padding: 40px;
+        height: 100vh;
+        font-size: clamp(14px, 1vw + 10px, 18px);
+        background-color: var(--dark-bg);
+        color: var(--text-color);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        padding: 10px;
+        line-height: 1.5;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+ /* Set the zoom level to 75% or 80% */
+    zoom: 80%; 
+    
+    /* Ensure the body remains centered */
+    margin: 0 auto;
+    width: 90%;
     }
 
+    /* Main Grid Layout */
+.main-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr 350px; /* Adjust widths to your preference */
+    grid-template-rows: 1fr; /* Takes all available height */
+    gap: 15px;
+    padding: 15px;
+    height: calc(100vh - 80px); /* 80px for your header/nav */
+    box-sizing: border-box;
+    zoom: 75%;
+}
+
+    /* ------------------------------------- */
+    /* HEADERS & ACCENTS */
+    /* ------------------------------------- */
     .console-header {
-      text-align: center;
-      font-size: 2.2rem;
-      color: hotpink;
-      margin-bottom: 40px;
-      letter-spacing: 2px;
+        position: relative; 
+        text-align: center;
+        font-size: 2.8rem;
+        color: var(--main-accent);
+        margin-bottom: 0px;
+        letter-spacing: 4px;
+        font-weight: 700;
+        text-transform: uppercase;
+        grid-column: 1 / -1; 
+        padding-bottom: 10px;
+        border-bottom: 3px solid var(--module-bg);
+    }
+    
+    #headerControls {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        display: flex;
+        gap: 10px;
     }
 
+    .header-icon-button {
+        font-size: 1.5rem;
+        padding: 10px 15px;
+        border-radius: 6px;
+        border: 2px solid var(--main-accent);
+        background-color: var(--module-bg);
+        color: var(--main-accent);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    /* ------------------------------------- */
+    /* MODULES */
+    /* ------------------------------------- */
     .module {
-      margin-bottom: 60px;
-      padding: 30px;
-      border-left: 6px solid hotpink;
-      border-radius: 8px;
-      background-color: #1a1a1a;
+        margin-bottom: 20px;
+        padding: 20px;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        background-color: var(--module-bg);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     }
 
     .module h2 {
-      font-size: 1.6rem;
-      color: white;
-      margin-bottom: 20px;
-      border-bottom: 2px solid hotpink;
-      padding-bottom: 10px;
-      text-align: left;
+        font-size: 1.4rem;
+        color: var(--highlight-text);
+        margin-bottom: 15px;
+        border-bottom: 2px solid var(--main-accent);
+        padding-bottom: 8px;
+        font-weight: 600;
     }
 
+    .module-full {
+        grid-column: 1 / -1; 
+        display: flex;
+        justify-content: space-around;
+        padding: 25px;
+    }
+    
+    /* ------------------------------------- */
+    /* TIMER / STATUS REDESIGN (NEW CSS) */
+    /* ------------------------------------- */
+    .status-panel {
+        display: grid;
+        grid-template-areas: 
+            "time time round game"
+            "saved saved tagging tagging";
+        gap: 15px;
+        padding: 25px;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        background-color: var(--module-bg);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        margin-bottom: 20px;
+        align-items: stretch;
+    }
+
+    .status-card {
+        text-align: center;
+        padding: 15px 10px;
+        border-radius: 8px;
+        background-color: var(--dark-bg);
+        border: 1px solid #30363d;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .status-label {
+        font-size: 0.85rem;
+        color: #8b949e;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+        letter-spacing: 1px;
+    }
+
+    .status-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--main-accent);
+        line-height: 1.2;
+    }
+
+    #globalTimeCard { grid-area: time; }
+    #savedTimeCard { grid-area: saved; }
+    #roundCard { grid-area: round; }
+    #gameCard { grid-area: game; }
+    #taggingCard { grid-area: tagging; }
+
+    /* Global Time Emphasis */
+    #globalTimeCard .status-value {
+        font-size: 3.5rem;
+        color: var(--highlight-text);
+        font-family: 'Share Tech Mono', monospace; 
+        padding-bottom: 5px;
+    }
+
+    /* Tagging Status Styling */
+    #taggingCard .status-value {
+        font-size: 1.5rem;
+        line-height: 1.5;
+        background-color: var(--main-accent);
+        color: var(--dark-bg);
+        border-radius: 4px;
+        padding: 2px 10px;
+        font-weight: 600;
+    }
+    
+    /* ------------------------------------- */
+    /* BUTTONS & GROUPS */
+    /* ------------------------------------- */
     .button-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 10px;
     }
 
-    button {
-      font-size: 1rem;
-      padding: 10px 18px;
-      border-radius: 6px;
-      border: 2px solid hotpink;
-      background-color: transparent;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.2s ease;
+    button, .settings-button {
+        flex-grow: 1;
+        font-size: 0.95rem;
+        padding: 10px 15px;
+        border-radius: 6px;
+        border: 2px solid var(--main-accent);
+        background-color: var(--dark-bg);
+        color: var(--text-color);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .score-button {
+        font-size: 1.1rem;
+        padding: 15px 10px;
+        flex-basis: calc(50% - 5px);
+        background-color: #21262d; 
     }
 
-    button:hover {
-      background-color: hotpink;
-      color: black;
-      box-shadow: 0 0 10px yellow;
+    /* Subtler Hover Effect */
+    button:hover, .settings-button:hover, .header-icon-button:hover {
+        background-color: var(--module-bg); /* Use module background for subtle effect */
+        color: var(--main-accent); /* Text changes to accent color */
+        box-shadow: 0 0 4px rgba(255, 105, 180, 0.7); /* Subtle glow */
+        border-color: var(--main-accent); /* Ensure border stays accented */
+    }
+    
+    /* Special Overrides for fixed colors */
+    .score-button.add { border-color: #3fb950; color: #3fb950; }
+    .score-button.remove { border-color: #f85149; color: #f85149; }
+    .score-button.add:hover { background-color: #3fb950; color: var(--dark-bg); box-shadow: 0 0 5px #3fb950; }
+    .score-button.remove:hover { background-color: #f85149; color: var(--dark-bg); box-shadow: 0 0 5px #f85149; }
+    
+    /* ------------------------------------- */
+    /* FORM ELEMENTS (Inputs/Selects/Textareas) */
+    /* ------------------------------------- */
+    input[type="text"], 
+    input[type="number"], 
+    input[type="date"], 
+    select, 
+    textarea {
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        background-color: var(--dark-bg);
+        color: var(--text-color);
+        font-size: 1em;
+        width: 200px; /* Width for settings inputs in the modal */
+        box-sizing: border-box; 
+        transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+        margin-top: 5px; 
+    }
+    
+    /* Make Textarea full width in its own row */
+    textarea {
+        width: 100%;
+        min-height: 80px;
+        resize: vertical;
     }
 
-    .status {
-      font-size: 1.2rem;
-      line-height: 1.6;
-      color: white;
+    /* Specific adjustment for select to fit modern look and dark theme */
+    select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6" viewBox="0 0 10 6"><path d="M0 0l5 6 5-6H0z" fill="%23c9d1d9"/></svg>');
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        padding-right: 30px; 
+        cursor: pointer;
     }
 
-    .status span {
-      color: yellow;
-      font-weight: bold;
+    input[type="text"]:focus, 
+    input[type="number"]:focus, 
+    input[type="date"]:focus, 
+    select:focus, 
+    textarea:focus {
+        border-color: var(--main-accent);
+        box-shadow: 0 0 0 2px rgba(255, 105, 180, 0.4);
+        outline: none;
+        background-color: #11151c; /* Slightly darker on focus */
     }
-
-    .score-display {
-      font-size: 1.8rem;
-      text-align: left;
-      color: yellow;
-      margin-top: 10px;
+    
+    /* Ensure checkboxes are not affected */
+    input[type="checkbox"] {
+        width: auto;
     }
-
-    .log-panel {
-      background-color: #121212;
-      border-left: 6px solid yellow;
-      border-radius: 8px;
-      padding: 24px;
-      max-height: 300px;
-      overflow-y: auto;
-    }
-
-    .log-panel h2 {
-      font-size: 1.4rem;
-      color: white;
-      margin-bottom: 16px;
-      border-bottom: 2px solid yellow;
-      padding-bottom: 6px;
+    
+    /* ------------------------------------- */
+    /* MATCH LOG MODERN STYLE (NEW/MODIFIED) */
+    /* ------------------------------------- */
+    #logContainer {
+        max-height: 600px;
+        overflow-y: auto;
+        padding: 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        background-color: var(--dark-bg); /* Explicit background added */
     }
 
     .log-entry {
-      font-size: 1rem;
-      margin-bottom: 8px;
-      color: #ccc;
+        font-size: 0.9em;
+        padding: 8px 0;
+        border-bottom: 1px dashed #21262d;
+        line-height: 1.4;
+    }
+
+    .log-entry:first-child {
+        border-top: none;
+    }
+
+    .log-entry:last-child {
+        border-bottom: none;
     }
 
     .log-entry span {
-      color: hotpink;
-      font-weight: bold;
+        font-weight: bold;
+        color: var(--main-accent);
+        margin-right: 8px;
+        font-family: 'Share Tech Mono', monospace;
     }
 
     .log-entry.score {
-      color: yellow;
+        background-color: #1a2028; /* Slightly different background for score actions */
+        padding: 8px;
+        border-radius: 4px;
+        margin: 5px 0;
+    }
+    
+    /* ------------------------------------- */
+    /* MODAL OVERLAY STYLES */
+    /* ------------------------------------- */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.85); 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000; 
     }
 
-.log-entry.foul.minor {
-  color: #ffcc00;
-}
+    .modal-content {
+  width: 90%;       /* Takes up 90% of the screen on small displays */
+    max-width: 600px; /* But never gets wider than 600px on large displays */
+    max-height: 80vh;
+    overflow-y: auto;
+        background: var(--module-bg);
+        border: 2px solid var(--main-accent);
+        box-shadow: 0 0 20px var(--main-accent);
+        padding: 30px;
+        border-radius: 12px;
+        animation: fadeIn 0.2s ease-out;
+    }
 
-.log-entry.foul.major {
-  color: orange;
-}
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+    }
 
-.log-entry.foul.disqualifying {
-  color: red;
-  font-weight: bold;
-}
+    .modal-content h2 {
+        color: var(--main-accent); 
+        margin-bottom: 20px;
+        border-bottom: 3px solid var(--main-accent);
+        padding-bottom: 10px;
+    }
+    
+    /* MODAL-SPECIFIC STYLES */
+    .setting-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px dashed #21262d;
+    }
+    
+    /* Foul History Modal Style (NEW) */
+    .foul-log-entry {
+        background-color: #21262d;
+        border: 1px solid #30363d;
+        padding: 10px;
+        margin-bottom: 5px;
+        border-radius: 4px;
+        font-size: 0.95em;
+        line-height: 1.4;
+        border-left: 5px solid #ff4d4d; /* Red accent for fouls */
+    }
 
-.console-subtext {
-  text-align: center;
-  font-size: 0.9rem;
-  color: #ccc;
-  margin-top: -20px;
-  margin-bottom: 10px;
-}
-
-.settings-button {
-  display: block;
-  margin: 0 auto 30px auto;
-  font-size: 0.9rem;
-  padding: 6px 14px;
-  border-radius: 6px;
-  border: 2px solid hotpink;
-  background-color: transparent;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.settings-button:hover {
-  background-color: hotpink;
-  color: black;
-  box-shadow: 0 0 8px yellow;
-}
-
-#scrollHint {
-  position: fixed;
-  bottom: 20px;
-  left: 5px;
-  font-size: 3.5rem; /* Bigger */
-  color: white;
-  text-shadow: 0 0 12px yellow, 0 0 24px yellow; /* Yellow glow */
-  opacity: 0.9;
-  cursor: pointer;
-  display: none;
-  animation: pulseDown 1.2s infinite;
-  z-index: 1000;
-}
-
-@keyframes pulseDown {
-  0%   { transform: translateY(0);   opacity: 0.9; }
-  50%  { transform: translateY(10px); opacity: 1;   }
-  100% { transform: translateY(0);   opacity: 0.9; }
-}
-
+    .foul-log-entry span {
+        font-weight: bold;
+        color: #ff4d4d; /* Red for emphasis */
+        margin-right: 5px;
+    }
   </style>
 </head>
 <body>
 
-  <div class="console-header">GBZ Ref Suite</div>
-<div class="console-subtext">Press TAB or press the button below for more options!</div>
-<button class="settings-button" onclick="toggleSettings()">⚙️ Open Settings</button>
+  <div class="console-header">
+      GBZ Ref Suite
+      <div id="headerControls">
+          <button class="header-icon-button" onclick="toggleDeepcheckModal()" title="Deepcheck Guide">📖</button>
+          <button class="header-icon-button" onclick="toggleSettingsModal()" title="Referee Settings">⚙️</button>
+      </div>
+  </div>
+  
+  <div class="main-grid">
 
-  <!-- Match Control -->
-  <div class="module">
-    <h2>Match Control</h2>
-    <div class="button-group">
-      <button onclick="logAction('Timer started'); startTimer()">Start</button>
-      <button onclick="logAction('Timer paused'); pauseTimer()">Pause</button>
-      <button onclick="logAction('Timer stopped'); stopTimer()">Stop</button>
-      <button onclick="logAction('Saved time reset'); resetSavedTime()">Reset Saved</button>
+    <div class="left-column">
+      
+      <div class="module">
+        <h2>Player & Foul Control</h2>
+        <div id="playerFoulControl">
+          </div>
+        <button onclick="openCustomFoulModal()" style="width: 100%; margin-top: 10px;">Custom Foul 📝</button>
+      </div>
+      
     </div>
-    <div class="button-group">
-      <button onclick="logAction('Round added'); addRound()">+ Round</button>
-      <button onclick="logAction('Round removed'); removeRound()">− Round</button>
-      <button onclick="logAction('Max rounds increased'); increaseMaxRounds()">+ Max</button>
-      <button onclick="logAction('Max rounds decreased'); decreaseMaxRounds()">− Max</button>
-<button onclick="switchGame()">Switch Game</button>
+
+    <div class="center-column">
+      
+      <div class="status-panel">
+          
+          <div id="globalTimeCard" class="status-card">
+              <div class="status-label">Global Time</div>
+              <span id="globalTime" class="status-value">00:00</span>
+          </div>
+      
+          <div id="roundCard" class="status-card">
+              <div class="status-label">Round</div>
+              <span class="status-value"><span id="currentRound">1</span> / <span id="totalRounds">8</span></span>
+          </div>
+      
+          <div id="gameCard" class="status-card">
+              <div class="status-label">Game</div>
+              <span id="currentGameDisplay" class="status-value">1</span>
+          </div>
+      
+          <div id="savedTimeCard" class="status-card">
+              <div class="status-label"><span id="savedTimeLabel">Saved Time (Game 1)</span></div>
+              <span id="savedTime" class="status-value" style="font-size: 2.5rem;">--:--</span>
+          </div>
+      
+          <div id="taggingCard" class="status-card" style="grid-area: tagging;">
+              <div class="status-label">Current Tagging</div>
+              <span id="taggingStatus" class="status-value">None</span>
+          </div>
+      </div>
+      <div class="module">
+        <h2>Score Control</h2>
+        <div class="score-container">
+          <div class="team-score">Team 1: <span id="team1Score">0</span></div>
+          <div class="team-score">Team 2: <span id="team2Score">0</span></div>
+        </div>
+        <div class="button-group" style="margin-top: 20px;">
+          <button class="score-button add" onclick="adjustScore(1, 1)">+ Team 1</button>
+          <button class="score-button add" onclick="adjustScore(2, 1)">+ Team 2</button>
+          <button class="score-button remove" onclick="adjustScore(1, -1)">− Team 1</button>
+          <button class="score-button remove" onclick="adjustScore(2, -1)">− Team 2</button>
+        </div>
+      </div>
+
+      <div class="module">
+        <h2>Match Control</h2>
+        <div class="button-group">
+          <button onclick="logAction('Timer started'); startTimer()">Start</button>
+          <button onclick="logAction('Timer paused'); pauseTimer()">Pause</button>
+          <button onclick="logAction('Timer stopped'); stopTimer()">Stop & Log</button>
+          <button onclick="logAction('Saved time reset'); resetSavedTime()">Reset Saved</button>
+        </div>
+        <div class="button-group">
+          <button onclick="logAction('Round added'); addRound()">+ Round</button>
+          <button onclick="logAction('Round removed'); removeRound()">− Round</button>
+          <button onclick="increaseMaxRounds()">+ Max</button>
+          <button onclick="decreaseMaxRounds()">− Max</button>
+        </div>
+        <button onclick="switchGame()" style="background-color: #330000; border-color: #ff0000; color: #ff0000;">Switch Game (Current: <span id="currentGame">1</span> / 2)</button>
+      </div>
+
+      <div class="module">
+          <h2>Tagging Control</h2>
+          <div class="button-group">
+            <button onclick="setTagging('Team 1')">Set: Team 1</button>
+            <button onclick="setTagging('Team 2')">Set: Team 2</button>
+            <button onclick="setTagging('None')">Clear Tagging</button>
+            <button onclick="randomTagging()">🎲 Random Tag</button>
+          </div>
+      </div>
+      
     </div>
-<div class="status">
-  Global Time: <span id="globalTime">00:00</span><br>
-  Saved Time: <span id="savedTime">--:--</span><br>
-  Round: <span id="currentRound">1</span> / <span id="totalRounds">8</span><br>
-  Game: <span id="currentGame">1</span> / 2
-</div>
-  </div>
 
-  <!-- Score Control -->
-  <div class="module">
-    <h2>Score Control</h2>
-    <div class="button-group">
-      <button onclick="team1Score++ ; updateScore(); logAction('Team 1 score increased', true)">+ Team 1</button>
-      <button onclick="team1Score-- ; updateScore(); logAction('Team 1 score decreased', true)">− Team 1</button>
-      <button onclick="team2Score++ ; updateScore(); logAction('Team 2 score increased', true)">+ Team 2</button>
-      <button onclick="team2Score-- ; updateScore(); logAction('Team 2 score decreased', true)">− Team 2</button>
+    <div class="right-column">
+      <div class="log-panel">
+        <h2>Match Log</h2>
+        <div id="logContainer"></div>
+      </div>
+      
+      <div class="button-group" style="margin-top: 10px;">
+          <button id="exportLogBtn" onclick="exportMatchLog()" style="flex-grow: 2;">Export Match Log</button>
+          <button onclick="openFoulHistoryModal()" style="flex-grow: 1; border-color: #f85149; color: #f85149; text-transform: none;">🚨 Foul History</button>
+      </div>
+      
     </div>
-    <div class="score-display">
-      Team 1: <span id="team1Score">0</span><br>
-      Team 2: <span id="team2Score">0</span>
-    </div>
-  </div>
+    
+  </div> 
 
-<!-- Tag Panel -->
-<div class="module">
-  <h2>Tagging Status</h2>
-  <div class="button-group">
-    <button onclick="setTagging('Team 1')">Tagging: Team 1</button>
-    <button onclick="setTagging('Team 2')">Tagging: Team 2</button>
-    <button onclick="setTagging('None')">Clear Tagging</button>
-    <button onclick="randomTagging()">🎲 Random Tag</button>
-  </div>
-  <div class="status">Current Tagging: <span id="taggingStatus">None</span></div>
-</div>
-
-
-<!-- Foul Panel -->
-<div class="module">
-  <h2>Foul Tracker</h2>
-
-  <div class="button-group">
-    <button onclick="recordFoul('Team 1', 'Minor')">Team 1 — Minor</button>
-    <button onclick="recordFoul('Team 1', 'Major')">Team 1 — Major</button>
-    <button onclick="recordFoul('Team 1', 'Disqualifying')">Team 1 — Disqualifying</button>
-  </div>
-
-  <div class="button-group">
-    <button onclick="recordFoul('Team 2', 'Minor')">Team 2 — Minor</button>
-    <button onclick="recordFoul('Team 2', 'Major')">Team 2 — Major</button>
-    <button onclick="recordFoul('Team 2', 'Disqualifying')">Team 2 — Disqualifying</button>
-  </div>
-
-</div>
-
-  <!-- Log Panel -->
-  <div class="log-panel">
-    <h2>Match Log</h2>
-    <div id="logContainer"></div>
-  </div>
-<button onclick="exportMatchLog()">Export Match Log</button>
-</div>
-
-<div id="settingsPanel" style="display:none; position:fixed; top:40px; right:40px; background:#1a1a1a; border:2px solid hotpink; padding:20px; border-radius:8px; z-index:999; font-family:'Share Tech Mono', monospace; color:white;">
-  <h2 style="color:hotpink; margin-bottom:10px;">Ref Settings</h2>
-  <label><input type="checkbox" id="toggleRecap" checked> Auto Round Recap</label><br>
-  <label><input type="checkbox" id="toggleSystemLogs" checked> Show System Logs</label><br>
-  <label><input type="checkbox" id="toggleMVP" checked> MVP Suggestions (FUTURE)</label><br>
-  <label><input type="checkbox" id="toggleExport" checked> Match Export Button</label><br>
-  <label><input type="checkbox" id="toggleAnalysis" checked> Survival Analysis</label><br>
-</div>
 <div id="scrollHint">⬇</div>
+
+<div id="settingsModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+        <h2 id="settingsTitle">⚙️ Ref Suite Settings</h2>
+        
+        <div id="settingsTabs" style="display:flex; margin-bottom: 15px; border-bottom: 1px solid var(--border-color);">
+          <button class="setting-tab-btn active" data-tab="match" onclick="switchTab('match')">Match Flow</button>
+          <button class="setting-tab-btn" data-tab="logging" onclick="switchTab('logging')">Logging & Export</button>
+          <button class="setting-tab-btn" data-tab="visual" onclick="switchTab('visual')">Visual & Player Config</button> 
+            <button onclick="toggleSettingsModal()" class="save-btn">Save & Close</button>
+
+
+
+        </div>
+        
+        <div id="match-settings" class="setting-tab-content">
+          <h3>Timer & Round Control</h3>
+          <div class="setting-row">
+              <label for="timeLimitInput">Base Match Time Limit (seconds)</label>
+              <input type="number" id="timeLimitInput" min="60" max="999" value="180">
+          </div>
+          <div class="setting-row">
+              <label for="useCountdownCheck">Enable 10s Timer Countdown</label>
+              <input type="checkbox" id="useCountdownCheck" checked>
+          </div>
+          <div class="setting-row">
+              <label for="defaultMaxRoundsInput">Default Max Rounds</label>
+              <input type="number" id="defaultMaxRoundsInput" min="1" max="50" value="8">
+          </div>
+          <h3>Scoring Configuration</h3>
+          <div class="setting-row">
+              <label for="scoreIncrementInput">Score Button Increment/Decrement</label>
+              <input type="number" id="scoreIncrementInput" min="1" max="10" value="1">
+          </div>
+          <div class="setting-row">
+              <label for="autoRecapCheck">Auto Round Recap & Scoring</label>
+              <input type="checkbox" id="autoRecapCheck" checked>
+          </div>
+          <h3>Foul Configuration</h3>
+          <div class="setting-row">
+              <label for="minorFoulActionSelect">Minor Foul Penalty</label>
+              <select id="minorFoulActionSelect">
+                  <option value="log">Log Only</option>
+                  <option value="score-penalty">Score Penalty (-1)</option>
+                  <option value="time-penalty">Time Penalty (-15s)</option>
+              </select>
+          </div>
+          <div class="setting-row">
+              <label for="majorFoulActionSelect">Major Foul Penalty</label>
+              <select id="majorFoulActionSelect">
+                  <option value="log">Log Only</option>
+                  <option value="score-penalty" selected>Score Penalty (-1)</option>
+                  <option value="time-penalty">Time Penalty (-30s)</option>
+              </select>
+          </div>
+        </div>
+        
+        <div id="logging-settings" class="setting-tab-content" style="display:none;">
+          <h3>Log Visibility</h3>
+          <div class="setting-row">
+              <label for="toggleSystemLogs">Show System & Action Logs</label>
+              <input type="checkbox" id="toggleSystemLogs" checked>
+          </div>
+          <div class="setting-row">
+              <label for="toggleDetailedScore">Detailed Score Change Logging</label>
+              <input type="checkbox" id="toggleDetailedScore">
+          </div>
+          <h3>Analysis & Export</h3>
+          <div class="setting-row">
+              <label for="toggleSurvivalAnalysis">Enable Post-Round Survival Analysis</label>
+              <input type="checkbox" id="toggleSurvivalAnalysis" checked>
+          </div>
+          <div class="setting-row">
+              <label for="toggleExport">Show Match Export Button</label>
+              <input type="checkbox" id="toggleExport" checked>
+          </div>
+        </div>
+
+     <div id="visual-settings" class="setting-tab-content" style="display:none;">
+    <h3>Match Format</h3>
+    <div class="setting-row">
+        <label for="teamSizeSelect">Team Size</label>
+        <select id="teamSizeSelect" onchange="togglePlayerInputs()">
+            <option value="2">2v2</option>
+            <option value="3">3v3</option>
+            <option value="4">4v4</option>
+        </select>
+    </div>
+
+    <h3>Player Naming</h3>
+    <div class="setting-row"><input type="text" id="t1p1Name" value="T1 Player A"></div>
+    <div class="setting-row"><input type="text" id="t1p2Name" value="T1 Player B"></div>
+    <div class="setting-row" id="t1p3Row" style="display:none;"><input type="text" id="t1p3Name" value="T1 Player C"></div>
+    <div class="setting-row" id="t1p4Row" style="display:none;"><input type="text" id="t1p4Name" value="T1 Player D"></div>
+    
+    <div class="setting-row"><input type="text" id="t2p1Name" value="T2 Player A"></div>
+    <div class="setting-row"><input type="text" id="t2p2Name" value="T2 Player B"></div>
+    <div class="setting-row" id="t2p3Row" style="display:none;"><input type="text" id="t2p3Name" value="T2 Player C"></div>
+    <div class="setting-row" id="t2p4Row" style="display:none;"><input type="text" id="t2p4Name" value="T2 Player D"></div>
+    
+    </div>
+          <h3>Appearance Customization</h3>
+          <div class="setting-row">
+              <label for="accentColorInput">Primary Accent Color</label>
+              <input type="color" id="accentColorInput" value="#ff69b4">
+          </div>
+          <div class="setting-row">
+              <label for="savedTimeLabelInput">Custom Saved Time Label</label>
+              <input type="text" id="savedTimeLabelInput" value="Saved Time (Game 1)">
+          </div>
+          <div class="setting-row">
+              <label for="toggleMVP">MVP Suggestions (FUTURE)</label>
+              <input type="checkbox" id="toggleMVP" checked>
+          </div>
+          
+          <h3>Dashboard Toggles</h3>
+          <div class="setting-row">
+              <label for="hideDeepcheckToggle">Hide Deepcheck Guide Button</label>
+              <input type="checkbox" id="hideDeepcheckToggle">
+          </div>
+             </div>
+             
+
+    </div>
+</div>
+
+<div id="deepcheckModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div id="deepcheckContent">
+            <h2>📖 Deepcheck Guide</h2>
+            <div id="deepcheckMenu" style="margin-top: 15px;"></div>
+            <div class="button-group" style="margin-top: 20px;">
+                <button id="videoLaunchBtn" onclick="openDemoVideo()" style="flex-basis: 48%; border-color: #ff4d4d; color: #ff4d4d;">🎥 Open Placeholder Demo Video</button>
+                <button onclick="toggleDeepcheckModal()" style="flex-basis: 48%;">❌ Close Guide</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="customFoulModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <h2>📝 Log Custom Foul</h2>
+        <form onsubmit="event.preventDefault(); logCustomFoul();">
+            <div class="setting-row">
+                <label for="cfPlayerSelect">Player:</label>
+                <select id="cfPlayerSelect" required></select>
+            </div>
+            <div class="setting-row">
+                <label for="cfFoulType">Foul Type:</label>
+                <select id="cfFoulType">
+                    <option value="Minor">Minor Foul</option>
+                    <option value="Major">Major Foul</option>
+                    <option value="Disqualifying">Disqualifying Foul</option>
+                    <option value="Custom" selected>Custom Rule Violation</option>
+                </select>
+            </div>
+            <div class="setting-row" style="display: block;">
+                <label for="cfDescription">Foul Description / Rule Violated:</label>
+                <textarea id="cfDescription" placeholder="e.g., 'Exceeded boundary line after being tagged'"></textarea>
+            </div>
+
+            <h3 style="color: var(--highlight-text); margin-top: 20px; margin-bottom: 10px;">Manual Penalty Adjustment (Optional)</h3>
+            <div class="setting-row">
+                <label for="cfScorePenalty">Apply Score Penalty (to opponent):</label>
+                <input type="number" id="cfScorePenalty" value="0" min="0" max="10">
+            </div>
+            <div class="setting-row">
+                <label for="cfTimePenalty">Apply Time Penalty (add seconds):</label>
+                <input type="number" id="cfTimePenalty" value="0" min="0" max="999">
+            </div>
+
+            <button type="submit" style="margin-top: 20px; width: 100%; background-color: #f85149; border-color: #f85149; color: var(--highlight-text);">Log Foul & Apply Penalties</button>
+            <button type="button" onclick="closeCustomFoulModal()" style="margin-top: 10px; width: 100%;">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<div id="scheduleHistoryModal" class="modal-overlay" style="display: none; z-index: 1001;">
+    <div class="modal-content">
+        <h2>📜 Match Schedule History</h2>
+        <div id="scheduleHistoryContainer" style="max-height: 70vh; overflow-y: auto;">
+            </div>
+        <button onclick="closeScheduleHistoryModal()" style="margin-top: 20px; width: 100%;">Close History</button>
+    </div>
+</div>
+
+<div id="addMatchModal" class="modal-overlay" style="display: none; z-index: 1001;">
+    <div class="modal-content">
+        <h2>➕ Schedule New Match</h2>
+        <form onsubmit="event.preventDefault(); addMatchToSchedule();">
+            <div class="setting-row">
+                <label for="amTeam1">Team 1 Name:</label>
+                <input type="text" id="amTeam1" required value="T1 Alpha">
+            </div>
+            <div class="setting-row">
+                <label for="amTeam2">Team 2 Name:</label>
+                <input type="text" id="amTeam2" required value="T2 Beta">
+            </div>
+            <div class="setting-row">
+                <label for="amTournament">Tournament/League:</label>
+                <input type="text" id="amTournament" value="Summer Cup">
+            </div>
+            <div class="setting-row">
+                <label for="amDate">Date:</label>
+                <input type="date" id="amDate" value="${new Date().toISOString().split('T')[0]}">
+            </div>
+            <div class="setting-row">
+                <label for="amTime">Time:</label>
+                <input type="text" id="amTime" value="10:00 AM" placeholder="e.g., 10:00 AM">
+            </div>
+            <button type="submit" style="margin-top: 20px; width: 100%; background-color: #3fb950; border-color: #3fb950; color: var(--highlight-text);">Schedule Match</button>
+            <button type="button" onclick="closeAddMatchModal()" style="margin-top: 10px; width: 100%;">Cancel</button>
+        </form>
+    </div>
+</div>
+
+<div id="matchCalendarModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <h2>📅 Match Calendar View</h2>
+        <p style="color: #8b949e; margin-bottom: 20px;">Structured view of all scheduled and completed matches.</p>
+        <div id="matchCalendarContainer" style="max-height: 60vh; overflow-y: auto; margin-bottom: 15px;">
+            </div>
+        <div class="button-group">
+            <button onclick="openAddMatchModal()">➕ Add New Match</button>
+            <button onclick="openScheduleHistoryModal()">📜 Schedule History</button>
+        </div>
+        <button onclick="closeMatchCalendarModal()" style="margin-top: 10px; width: 100%;">Close Calendar</button>
+    </div>
+</div>
+
+<div id="foulHistoryModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <h2>🚨 Foul History Log</h2>
+        <p style="color: #8b949e; margin-bottom: 20px;">Detailed history of all recorded player fouls.</p>
+        <div id="foulHistoryContainer" style="max-height: 70vh; overflow-y: auto;">
+            </div>
+        <div class="button-group" style="margin-top: 20px;">
+            <button onclick="exportFoulLog()" style="flex-grow: 1; background-color: #3fb950; border-color: #3fb950; color: var(--highlight-text);">📝 Export to TXT</button>
+            <button onclick="promptUndoLastFoul()" style="flex-grow: 1; background-color: #8b0000; border-color: #ff4d4d; color: var(--highlight-text);">↩️ Undo Last Foul</button>
+            <button onclick="closeFoulHistoryModal()" style="flex-grow: 1;">Close Log</button>
+        </div>
+    </div>
+</div>
+
+<div id="confirmationModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 450px; text-align: center; border-color: #ff4d4d; box-shadow: 0 0 20px #ff4d4d;">
+        <h2 id="confirmTitle" style="color: #ff4d4d;">⚠️ Confirm Action</h2>
+        <p id="confirmMessage" style="margin-bottom: 25px; font-size: 1.1em;"></p>
+        <div class="button-group">
+            <button onclick="executeConfirmation(true)" style="flex-basis: 50%; background-color: #ff4d4d; border-color: #ff4d4d; color: var(--highlight-text);">Yes, Do It</button>
+            <button onclick="executeConfirmation(false)" style="flex-basis: 50%;">Cancel</button>
+        </div>
+    </div>
+</div>
+
+
   <script>
+    // --- JS VARIABLES ---
     let globalTime = 0;
     let savedTime = null;
     let currentRound = 1;
@@ -279,134 +771,240 @@
     let countdownInterval = null;
     let currentTagging = 'None';
     let currentGame = 1;
-          let performanceLog = [];
+    let performanceLog = [];
+    
+    let foulLog = []; // Dedicated log for fouls
+    let foulIdCounter = 1; // NEW: Unique ID counter for fouls
+    let playerFouls = {}; // Initialized in loadSettingsFromDOM
 
+    // NEW: Match Schedule Data
+    let matchSchedule = [
+        { id: 1, teams: 'T1 Alpha vs T2 Beta', tournament: 'Summer Cup', time: '10:00 AM', date: '2023-11-15', status: 'In Progress' },
+        { id: 2, teams: 'T3 Gamma vs T4 Delta', tournament: 'Summer Cup', time: '11:30 AM', date: '2023-11-15', status: 'Pending' },
+        { id: 3, teams: 'T5 Epsilon vs T6 Zeta', tournament: 'Winter League', time: '1:00 PM', date: '2023-11-14', status: 'Completed' },
+    ];
+    let matchIdCounter = 4; // Counter for new matches
+
+    // Global variable to hold the confirmation callback
+    let confirmationCallback = null;
+
+// EXPANDED SETTINGS OBJECT
+    let refSettings = {
+        // Match Flow
+        timeLimit: 180, // seconds
+        useCountdown: true,
+        defaultMaxRounds: 8,
+        autoRecap: true,
+        scoreIncrement: 1,
+        teamSize: 2,
+        // Fouls
+        minorFoulAction: 'log', 
+        majorFoulAction: 'score-penalty',
+        // Logging & Export
+        showSystemLogs: true,
+        matchExport: true,
+        survivalAnalysis: true,
+        detailedScoreLogging: false,
+        // Visual & UI
+        scoreColor: '#ff69b4', 
+        savedTimeLabel: 'Saved Time (Game 1)',
+        hideDeepcheck: false,
+        mvpSuggestions: true,
+        // Player Configuration
+        playerNames: {
+            'Team 1': ['T1 Player A', 'T1 Player B', 'T1 Player C', 'T1 Player D'],
+            'Team 2': ['T2 Player A', 'T2 Player B', 'T2 Player C', 'T2 Player D']
+        }
+    };
+
+    // --- JS HELPERS ---
 
     function formatTime(t) {
       const m = String(Math.floor(t / 60)).padStart(2, '0');
       const s = String(t % 60).padStart(2, '0');
       return `${m}:${s}`;
     }
+    
+    // Helper to format date for display
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        } catch {
+            return dateString;
+        }
+    }
 
- function updateDisplay() {
-  document.getElementById('globalTime').textContent = formatTime(globalTime);
-  document.getElementById('savedTime').textContent = savedTime !== null ? formatTime(savedTime) : '--:--';
-  document.getElementById('currentRound').textContent = currentRound;
-  document.getElementById('totalRounds').textContent = totalRounds;
+    // UPDATED: updateDisplay to use new status panel IDs
+    function updateDisplay() {
+      document.getElementById('globalTime').textContent = formatTime(globalTime);
+      document.getElementById('savedTime').textContent = savedTime !== null ? formatTime(savedTime) : '--:--';
+      document.getElementById('currentRound').textContent = currentRound;
+      document.getElementById('totalRounds').textContent = totalRounds;
 
-  const gameDisplay = document.getElementById('currentGame');
-  if (gameDisplay) gameDisplay.textContent = currentGame;
-}
+      // UPDATED ID
+      const gameDisplay = document.getElementById('currentGameDisplay');
+      if (gameDisplay) gameDisplay.textContent = currentGame;
+      
+      // Update currentGame display in the Match Control module
+      const currentGameSpan = document.getElementById('currentGame');
+      if (currentGameSpan) currentGameSpan.textContent = currentGame;
+
+      document.getElementById('taggingStatus').textContent = currentTagging;
+      document.getElementById('savedTimeLabel').textContent = refSettings.savedTimeLabel;
+    }
 
     function updateScore() {
       document.getElementById('team1Score').textContent = team1Score;
       document.getElementById('team2Score').textContent = team2Score;
     }
 
-function startTimer() {
-  if (timerInterval || countdownInterval) return;
+    // Function to handle score adjustments using increment setting
+    function adjustScore(team, direction, manualChange = false) {
+        const increment = manualChange ? 1 : refSettings.scoreIncrement;
+        const change = direction * increment;
+        const teamName = `Team ${team}`;
 
- const alreadyPlayed = performanceLog.filter(e => e.round === currentRound && e.game === currentGame);
-if (alreadyPlayed.length >= 1 && globalTime === 0) {
-  logAction(`Game ${currentGame} of Round ${currentRound} already logged — timer blocked`);
-  return;
-}
-
-  let countdown = 10;
-  const globalDisplay = document.getElementById('globalTime');
-  globalDisplay.textContent = `Starting in ${countdown}s`;
-
-  countdownInterval = setInterval(() => {
-    countdown--;
-    globalDisplay.textContent = countdown > 0 ? `Starting in ${countdown}s` : 'Starting...';
-    if (countdown <= 0) {
-      clearInterval(countdownInterval);
-      countdownInterval = null;
-      globalTime = 0;
-      updateDisplay();
-      timerInterval = setInterval(() => {
-        globalTime++;
-        updateDisplay();
-        if (globalTime >= 180) {
-          stopTimer();
-          logAction('Timer capped at 3 minutes and auto-stopped');
+        if (team === 1) {
+            team1Score += change;
+        } else if (team === 2) {
+            team2Score += change;
         }
-      }, 1000);
+        
+        // Ensure scores don't drop below zero
+        if (team1Score < 0) team1Score = 0;
+        if (team2Score < 0) team2Score = 0;
+
+        updateScore();
+        
+        // Log only if it's not a reversal action (e.g. from removeFoul)
+        const logMsg = refSettings.detailedScoreLogging 
+            ? `${teamName} score ${change > 0 ? 'increased' : 'decreased'} by ${Math.abs(change)} (to ${team === 1 ? team1Score : team2Score})`
+            : `${teamName} score ${change > 0 ? 'increased' : 'decreased'}`;
+        
+        // Check for specific reversal actions that should not be logged as normal score changes
+        const caller = arguments.callee.caller ? arguments.callee.caller.name : 'unknown';
+        if (caller !== 'removeFoul' && caller !== 'undoLastFoul') {
+             logAction(logMsg, true);
+        }
     }
-  }, 1000);
-}
+    
+    // --- JS CORE FUNCTIONS (REMAIN THE SAME) ---
+    
+    function startTimer() {
+        if (timerInterval || countdownInterval) return;
 
-function stopTimer() {
-  // Stop all timers
-  pauseTimer();
-  clearInterval(countdownInterval);
-  countdownInterval = null;
+        const alreadyPlayed = performanceLog.filter(e => e.round === currentRound && e.game === currentGame);
+        if (alreadyPlayed.length >= 1 && globalTime === 0) {
+            logAction(`Game ${currentGame} of Round ${currentRound} already logged — timer blocked`);
+            return;
+        }
 
-  // Save and reset time
-  // Save time only if Game 1 just ended
-if (currentGame === 1) {
-  savedTime = globalTime;
-}
-globalTime = 0;
+        const startLogic = () => {
+            globalTime = 0;
+            updateDisplay();
+            timerInterval = setInterval(() => {
+                globalTime++;
+                updateDisplay();
+                if (globalTime >= refSettings.timeLimit) {
+                    stopTimer();
+                    logAction(`Timer capped at ${formatTime(refSettings.timeLimit)} and auto-stopped`);
+                }
+            }, 1000);
+        };
 
-  // Log performance for the game that just ended
-  performanceLog.push({
-    round: currentRound,
-    game: currentGame,
-    taggingTeam: currentTagging,
-    runnerTeam: currentTagging === 'Team 1' ? 'Team 2' : 'Team 1',
-    duration: savedTime
-  });
 
-  // Flip tagging for next game
-  if (currentTagging === 'Team 1') {
-    setTagging('Team 2');
-  } else if (currentTagging === 'Team 2') {
-    setTagging('Team 1');
-  } else {
-    setTagging('None');
-  }
+        if (refSettings.useCountdown) {
+            let countdown = 10;
+            const globalDisplay = document.getElementById('globalTime');
+            globalDisplay.textContent = `Starting in ${countdown}s`;
+            
+            const startButton = document.querySelector('[onclick="logAction(\'Timer started\'); startTimer()"]');
+            startButton.disabled = true;
 
-  // Determine what just ended
-  const justEndedGame = currentGame;
+            countdownInterval = setInterval(() => {
+                countdown--;
+                globalDisplay.textContent = countdown > 0 ? `Starting in ${countdown}s` : 'Starting...';
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    countdownInterval = null;
+                    startButton.disabled = false;
+                    startLogic();
+                }
+            }, 1000);
+        } else {
+            startLogic();
+        }
+    }
 
-  // If Game 1 ended → flip to Game 2 and prompt manual start
-  if (justEndedGame === 1) {
-    currentGame = 2;
-    logAction(`Game 1 complete — press Start to begin Game 2`);
-    updateDisplay();
-    return;
-  }
+    function stopTimer() {
+        pauseTimer();
+        clearInterval(countdownInterval);
+        countdownInterval = null;
 
-  // If Game 2 ended → wrap the round, then reset for next round
-  // Capture the completed round number first
-  const completedRound = currentRound;
+        const currentDuration = globalTime;
+        const justEndedGame = currentGame;
 
-  // Advance round and reset game counter BEFORE running analysis/recap
-  currentRound++;
-  currentGame = 1;
+        // Reset global time
+        globalTime = 0;
 
-  // Log round transition
-  logAction(`Round ${completedRound} complete — advancing to Round ${currentRound} and resetting to Game 1`);
+        // Log performance for the game that just ended
+        performanceLog.push({
+            round: currentRound,
+            game: justEndedGame,
+            taggingTeam: currentTagging,
+            runnerTeam: currentTagging === 'Team 1' ? 'Team 2' : 'Team 1',
+            duration: currentDuration
+        });
+        
+        // If Game 1 ended: Save time, flip to Game 2
+        if (justEndedGame === 1) {
+            savedTime = currentDuration;
+            
+            // Flip tagging for next game
+            const nextTagging = currentTagging === 'Team 1' ? 'Team 2' : currentTagging === 'Team 2' ? 'Team 1' : 'None';
+            setTagging(nextTagging);
+            
+            currentGame = 2;
+            logAction(`Game 1 complete (Duration: ${formatTime(savedTime)}) — press Start to begin Game 2`);
+            updateDisplay();
+            return;
+        }
 
-  // Try analysis and recap; do not allow failures to block state updates
-  try {
-    analyzePerformance();
-  } catch (e) {
-    console.warn('analyzePerformance error:', e);
-    logToLogPanel('Analysis failed this round (logged for review)');
-  }
+        // If Game 2 ended: Finish round, analyze, advance round
+        const completedRound = currentRound;
 
-  try {
-    generateRoundRecap(completedRound);
-  } catch (e) {
-    console.warn('generateRoundRecap error:', e);
-    logToLogPanel('Round recap failed (logged for review)');
-  }
+        // Check for end of match
+        if (currentRound >= totalRounds) {
+            logAction(`All ${totalRounds} rounds complete! MATCH ENDED.`);
+            
+            // Mark the match as completed if one was in progress
+            const currentMatch = matchSchedule.find(m => m.status === 'In Progress');
+            if (currentMatch) {
+                currentMatch.status = 'Completed';
+                logAction(`Match ${currentMatch.id} (${currentMatch.teams}) concluded.`);
+                renderMatchSchedule();
+            }
+        }
+        
+        // Advance round and reset game counter
+        currentRound++;
+        currentGame = 1;
+        savedTime = null;
 
-  // Final display update
-  updateDisplay();
-}
+        logAction(`Round ${completedRound} complete — advancing to Round ${currentRound} and resetting to Game 1`);
+
+        try { analyzePerformance(); } catch (e) { logToLogPanel('Analysis failed this round'); }
+        try { generateRoundRecap(completedRound); } catch (e) { logToLogPanel('Round recap failed'); }
+        
+        // Flip tagging for next round (Game 1)
+        const nextTagging = currentTagging === 'Team 1' ? 'Team 2' : currentTagging === 'Team 2' ? 'Team 1' : 'None';
+        setTagging(nextTagging);
+
+        updateDisplay();
+    }
+    
     function pauseTimer() {
       clearInterval(timerInterval);
       timerInterval = null;
@@ -438,213 +1036,1390 @@ globalTime = 0;
       updateDisplay();
     }
 
-function setTagging(team) {
-  currentTagging = team;
-  document.getElementById('taggingStatus').textContent = team;
-  logAction(`Tagging switched to ${team}`);
-}
-
-function randomTagging() {
-  const team = Math.random() < 0.5 ? 'Team 1' : 'Team 2';
-  setTagging(team);
-  logAction(`Randomly selected ${team} to tag`);
-}
-
-function recordFoul(team, type) {
-  const time = formatTime(globalTime);
-  const round = currentRound;
-  const tagging = currentTagging;
-  const entry = document.createElement('div');
-  entry.className = 'log-entry foul ' + type.toLowerCase();
-  entry.innerHTML = `<span>[${time}]</span> (Round ${round}) ${tagging} tagging — ${team} committed a ${type} foul`;
-  document.getElementById('logContainer').prepend(entry);
-}
-
-
-
-function switchGame() {
-  currentGame = currentGame === 1 ? 2 : 1;
-  updateDisplay();
-  logAction(`Game manually switched to Game ${currentGame}`);
-}
-
-function analyzePerformance() {
-if (!refSettings.survivalAnalysis) return;
-  if (performanceLog.length < 2) return;
-
-  const runnerStats = {};
-  const roundDurations = {};
-
-  performanceLog.forEach(entry => {
-    const { runnerTeam, round, duration } = entry;
-
-    // Track runner durations
-    if (!runnerStats[runnerTeam]) runnerStats[runnerTeam] = [];
-    runnerStats[runnerTeam].push(duration);
-
-    // Track round durations
-    if (!roundDurations[round]) roundDurations[round] = [];
-    roundDurations[round].push(duration);
-  });
-
-  // Find average survival per team
-  for (const team in runnerStats) {
-    const times = runnerStats[team];
-    const avg = times.reduce((a, b) => a + b, 0) / times.length;
-    const fullSurvivals = times.filter(t => t >= 180).length;
-    logAction(`${team} average survival: ${formatTime(Math.round(avg))} (${fullSurvivals} full holds)`);
-  }
-
-  // Find fastest round
-  let fastestRound = null;
-  let fastestTime = Infinity;
-  for (const round in roundDurations) {
-    const total = roundDurations[round].reduce((a, b) => a + b, 0);
-    if (total < fastestTime) {
-      fastestTime = total;
-      fastestRound = round;
+    function setTagging(team) {
+      currentTagging = team;
+      document.getElementById('taggingStatus').textContent = team;
+      logAction(`Tagging switched to ${team}`);
     }
-  }
 
-  logAction(`Fastest round: Round ${fastestRound} with total survival ${formatTime(fastestTime)}`);
+    function randomTagging() {
+      const team = Math.random() < 0.5 ? 'Team 1' : 'Team 2';
+      setTagging(team);
+      logAction(`Randomly selected ${team} to tag`);
+    }
+
+    // PLAYER/FOUL LOGIC 
+    function getPlayerTeam(playerName) {
+        if (refSettings.playerNames['Team 1'].includes(playerName)) return 'Team 1';
+        if (refSettings.playerNames['Team 2'].includes(playerName)) return 'Team 2';
+        return null;
+    }
+
+    function initializePlayerFouls() {
+        playerFouls = {};
+        const allPlayers = refSettings.playerNames['Team 1'].concat(refSettings.playerNames['Team 2']);
+        allPlayers.forEach(player => {
+            playerFouls[player] = { Minor: 0, Major: 0, DQ: false };
+        });
+    }
+
+    function updatePlayerFoulDisplays() {
+        const allPlayers = refSettings.playerNames['Team 1'].concat(refSettings.playerNames['Team 2']);
+        allPlayers.forEach(playerName => {
+            const displayId = `${playerName.replace(/\s/g, '')}Fouls`;
+            const fouls = playerFouls[playerName] || { Minor: 0, Major: 0, DQ: false };
+            const statusSpan = document.getElementById(displayId);
+            
+            if (statusSpan) {
+                const playerRow = statusSpan.closest('.player-foul-row');
+                if (playerRow) {
+                    const nameDiv = playerRow.querySelector('.player-name-status');
+                    nameDiv.innerHTML = `${playerName}${fouls.DQ ? ' (DQ)' : ''} <span id="${displayId}" style="float: right; font-weight: normal; font-size: 0.9em; color: var(--text-color);">Minor: ${fouls.Minor} | Major: ${fouls.Major}</span>`;
+                    nameDiv.style.color = fouls.DQ ? '#ff4d4d' : 'var(--highlight-text)';
+                    
+                    const buttonGroup = playerRow.querySelector('.button-group');
+                    buttonGroup.style.opacity = fouls.DQ ? 0.5 : 1;
+                    buttonGroup.style.pointerEvents = fouls.DQ ? 'none' : 'auto';
+                }
+            }
+        });
+    }
+    
+function renderPlayerFoulControls() {
+    const container = document.getElementById('playerFoulControl');
+    if (!container) return;
+    container.innerHTML = '';
+
+    ['Team 1', 'Team 2'].forEach(teamName => {
+        const teamHeader = document.createElement('h3');
+        teamHeader.style.color = teamName === 'Team 1' ? '#3fb950' : '#f85149';
+        teamHeader.style.borderBottom = '1px solid var(--border-color)';
+        teamHeader.style.paddingBottom = '5px';
+        teamHeader.style.marginTop = '15px';
+        teamHeader.textContent = teamName;
+        container.appendChild(teamHeader);
+
+        // ONLY render players based on the selected teamSize
+        refSettings.playerNames[teamName].slice(0, refSettings.teamSize).forEach(playerName => {
+            const fouls = playerFouls[playerName] || { Minor: 0, Major: 0, DQ: false };
+            const displayId = `${playerName.replace(/\s/g, '')}Fouls`;
+            
+            const playerDiv = document.createElement('div');
+            playerDiv.className = 'player-foul-row';
+            playerDiv.innerHTML = `
+                <div class="player-name-status" style="font-weight: bold; margin-bottom: 5px; color: ${fouls.DQ ? '#ff4d4d' : 'var(--highlight-text)'};">
+                    ${playerName}${fouls.DQ ? ' (DQ)' : ''}
+                    <span id="${displayId}" style="float: right; font-weight: normal; font-size: 0.9em; color: var(--text-color);">
+                        Minor: ${fouls.Minor} | Major: ${fouls.Major}
+                    </span>
+                </div>
+                <div class="button-group" style="margin-bottom: 10px; opacity: ${fouls.DQ ? 0.5 : 1}; pointer-events: ${fouls.DQ ? 'none' : 'auto'};">
+                    <button onclick="recordFoul('${playerName}', 'Minor')" style="flex-basis: 33%;">Minor</button>
+                    <button onclick="recordFoul('${playerName}', 'Major')" style="flex-basis: 33%; border-color: #f85149; color: #f85149;">Major</button>
+                    <button onclick="recordFoul('${playerName}', 'Disqualifying')" style="flex-basis: 33%; background-color: #8b0000; border-color: #ff4d4d; color: var(--highlight-text);">DQ</button>
+                </div>
+            `;
+            container.appendChild(playerDiv);
+        });
+    });
 }
 
-function generateRoundRecap(roundNum) {
-if (!refSettings.autoRecap) return;
-  const entries = performanceLog.filter(e => e.round === roundNum);
-  if (entries.length < 2) return;
-
-  const recapLines = [`— ROUND ${roundNum} RECAP —`];
-  let scoreChange = { 'Team 1': 0, 'Team 2': 0 };
-
-  // Survival comparison
-  entries.forEach(e => {
-    const time = formatTime(e.duration);
-    recapLines.push(`${e.runnerTeam} ran for ${time}`);
-  });
-
-  const [game1, game2] = entries;
-  if (game1.duration !== 180 || game2.duration !== 180) {
-    const winner = game1.duration > game2.duration ? game1.runnerTeam : game2.runnerTeam;
-    scoreChange[winner]++;
-    recapLines.push(`${winner} awarded +1 point for longer survival`);
-  } else {
-    recapLines.push(`Both teams survived full 3:00 — no score change`);
-  }
-
-  // Apply score
-  team1Score += scoreChange['Team 1'];
-  team2Score += scoreChange['Team 2'];
-  updateScore();
-
-  // Log recap
-  recapLines.forEach(line => logToLogPanel(line));
+    function togglePlayerInputs() {
+    const size = parseInt(document.getElementById('teamSizeSelect').value);
+    refSettings.teamSize = size;
+    
+    // Show/Hide rows based on size
+    document.getElementById('t1p3Row').style.display = size >= 3 ? 'flex' : 'none';
+    document.getElementById('t1p4Row').style.display = size >= 4 ? 'flex' : 'none';
+    document.getElementById('t2p3Row').style.display = size >= 3 ? 'flex' : 'none';
+    document.getElementById('t2p4Row').style.display = size >= 4 ? 'flex' : 'none';
 }
 
-function exportMatchLog() {
-if (!refSettings.matchExport) return;
-  const logEntries = document.querySelectorAll('#logContainer .log-entry');
-  let logText = '— GBZ MATCH LOG —\n\n';
+    function recordFoul(playerName, type) {
+      const team = getPlayerTeam(playerName);
+      if (!team || playerFouls[playerName].DQ) return; 
 
-  logEntries.forEach(entry => {
-    logText += entry.textContent.trim() + '\n';
-  });
+      const time = formatTime(globalTime);
+      const round = currentRound;
+      const tagging = currentTagging;
+      const opposingTeam = team === 'Team 1' ? 2 : 1;
+      
+      let penaltyMessage = '';
+      let action = 'log';
+      let manualScore = 0;
+      let manualTime = 0;
+      
+      if (type === 'Minor') action = refSettings.minorFoulAction;
+      else if (type === 'Major') action = refSettings.majorFoulAction;
+      else if (type === 'Disqualifying') action = 'disqualify'; 
 
-  // Show in popup
-  const logWindow = window.open('', 'MatchLogExport', 'width=600,height=600');
-  logWindow.document.write('<pre style="white-space:pre-wrap;font-family:monospace;padding:20px;background:#0a0a0a;color:#fff;">' + logText + '</pre>');
-  logWindow.document.title = 'GBZ Match Log Export';
+      if (action === 'score-penalty' && type !== 'Disqualifying') {
+          adjustScore(opposingTeam, 1, true); 
+          manualScore = 1;
+          penaltyMessage = ` (+1 point to opposing team)`;
+      } else if (action === 'time-penalty') {
+          const penaltySeconds = type === 'Minor' ? 15 : 30;
+          globalTime += penaltySeconds;
+          manualTime = penaltySeconds;
+          penaltyMessage = ` (+${penaltySeconds}s added to run time)`;
+      } else if (action === 'disqualify') {
+          playerFouls[playerName].DQ = true;
+          penaltyMessage = ` - MATCH DISQUALIFICATION!`;
+      } else { 
+          penaltyMessage = ' (Logged, no direct penalty)';
+      }
 
-  // Trigger download
-  const blob = new Blob([logText], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'GBZ_Match_Log.txt';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+      if (type === 'Minor') playerFouls[playerName].Minor++;
+      else if (type === 'Major') playerFouls[playerName].Major++;
+
+      const logMsg = `(R${round}, G${currentGame}) ${tagging} tagging — ${playerName} (${team}) committed a ${type.toUpperCase()} foul${penaltyMessage}`;
+      logAction(logMsg, true);
+      
+      foulLog.push({
+          id: foulIdCounter++, // NEW: Assign unique ID
+          time: formatTime(globalTime),
+          round: currentRound,
+          game: currentGame,
+          player: playerName,
+          team: team,
+          type: type,
+          action: action,
+          description: type, 
+          manualScore: manualScore, // Record the actual score penalty applied
+          manualTime: manualTime // Record the actual time penalty applied
+      });
+      
+      updatePlayerFoulDisplays();
+      updateDisplay();
+    }
+    
+    /**
+     * Core function to reverse the effects of a single foul by ID.
+     * NOTE: Called only after confirmation.
+     * @param {number} foulId - The ID of the foul to remove.
+     */
+    function removeFoul(foulId) {
+        const index = foulLog.findIndex(f => f.id === foulId);
+        if (index === -1) {
+            logAction(`ERROR: Foul ID ${foulId} not found for removal.`);
+            return;
+        }
+
+        const foulToRemove = foulLog[index];
+        const { player, team, type, manualScore, manualTime } = foulToRemove;
+        const opposingTeam = team === 'Team 1' ? 2 : 1;
+        
+        let undoMessage = `↩️ REMOVE: Removed foul #${foulId} by ${player} (${type})`;
+
+        // 1. Reverse Score Penalty (Score was added to opposingTeam)
+        if (manualScore > 0) {
+            const scoreRemoved = manualScore;
+            if (opposingTeam === 1) {
+                team1Score = Math.max(0, team1Score - scoreRemoved);
+            } else {
+                team2Score = Math.max(0, team2Score - scoreRemoved);
+            }
+            undoMessage += ` (-${scoreRemoved} score removed from Team ${opposingTeam})`;
+        }
+        
+        // 2. Reverse Time Penalty
+        if (manualTime > 0) {
+            globalTime = Math.max(0, globalTime - manualTime);
+            undoMessage += ` (-${manualTime}s removed from timer)`;
+        }
+        
+        // 3. Reverse Foul Count/Status
+        if (type === 'Minor' && playerFouls[player].Minor > 0) {
+            playerFouls[player].Minor--;
+        } else if (type === 'Major' && playerFouls[player].Major > 0) {
+            playerFouls[player].Major--;
+        } else if (type === 'Disqualifying') {
+            // Check if any *other* remaining foul for this player is a DQ
+            const otherDQs = foulLog.filter((f, i) => i !== index && f.type === 'Disqualifying' && f.player === player).length;
+            if (otherDQs === 0) {
+                playerFouls[player].DQ = false;
+            }
+        }
+        
+        // 4. Remove the foul from the log
+        foulLog.splice(index, 1);
+
+        logAction(undoMessage);
+
+        // 5. Update all displays
+        renderFoulHistory();
+        updateScore();
+        updateDisplay();
+        updatePlayerFoulDisplays();
+    }
+    
+    // Wrapper for confirmation before removing a single foul
+    function promptRemoveFoul(foulId) {
+        const foul = foulLog.find(f => f.id === foulId);
+        if (!foul) return;
+
+        const message = `Are you sure you want to <strong>permanently remove</strong> foul #${foul.id} by <strong>${foul.player} (${foul.type})</strong>? This will reverse all score and time penalties.`;
+        
+        openConfirmationModal(message, () => {
+             removeFoul(foulId);
+        });
+    }
+
+    /**
+     * Reverses the last foul recorded in foulLog. (Now uses the core removeFoul logic)
+     */
+    function promptUndoLastFoul() {
+        if (foulLog.length === 0) {
+            logAction('Foul Log is empty. Nothing to undo.');
+            return;
+        }
+        const lastFoul = foulLog[foulLog.length - 1];
+        const message = `Are you sure you want to undo the last foul (ID: ${lastFoul.id}) by <strong>${lastFoul.player} (${lastFoul.type})</strong>? This will reverse all penalties applied.`;
+        
+        openConfirmationModal(message, () => {
+             removeFoul(lastFoul.id);
+        });
+    }
+    
+    // Custom Foul Modal Functions (Unchanged)
+    function openCustomFoulModal() {
+        const modal = document.getElementById('customFoulModal');
+        const select = document.getElementById('cfPlayerSelect');
+        const allPlayers = refSettings.playerNames['Team 1'].concat(refSettings.playerNames['Team 2']);
+
+        select.innerHTML = '';
+        allPlayers.forEach(name => {
+            const option = document.createElement('option');
+            option.value = name;
+            option.textContent = name + (playerFouls[name].DQ ? ' (DQ)' : '');
+            select.appendChild(option);
+        });
+        
+        document.getElementById('cfFoulType').value = 'Custom';
+        document.getElementById('cfDescription').value = '';
+        document.getElementById('cfScorePenalty').value = 0;
+        document.getElementById('cfTimePenalty').value = 0;
+
+        modal.style.display = 'flex';
+    }
+
+    function updateCustomFoulDropdown() {
+    const select = document.getElementById('cfPlayerSelect');
+    if (!select) return;
+    select.innerHTML = '';
+    
+    const allActivePlayers = [
+        ...refSettings.playerNames['Team 1'].slice(0, refSettings.teamSize),
+        ...refSettings.playerNames['Team 2'].slice(0, refSettings.teamSize)
+    ];
+
+    allActivePlayers.forEach(player => {
+        const opt = document.createElement('option');
+        opt.value = player;
+        opt.textContent = player;
+        select.appendChild(opt);
+    });
 }
 
-let refSettings = {
-  autoRecap: true,
-  showSystemLogs: true,
-  mvpSuggestions: true,
-  matchExport: true,
-  survivalAnalysis: true
-};
+    function closeCustomFoulModal() {
+        document.getElementById('customFoulModal').style.display = 'none';
+    }
 
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Tab') {
-    e.preventDefault();
-    const panel = document.getElementById('settingsPanel');
-    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-  }
-});
+    function logCustomFoul() {
+        const playerName = document.getElementById('cfPlayerSelect').value;
+        const type = document.getElementById('cfFoulType').value;
+        const description = document.getElementById('cfDescription').value || 'No description provided.';
+        const scorePenalty = parseInt(document.getElementById('cfScorePenalty').value) || 0;
+        const timePenalty = parseInt(document.getElementById('cfTimePenalty').value) || 0;
 
-document.getElementById('toggleRecap').addEventListener('change', function() {
-  refSettings.autoRecap = this.checked;
-});
-document.getElementById('toggleSystemLogs').addEventListener('change', function() {
-  refSettings.showSystemLogs = this.checked;
-});
-document.getElementById('toggleMVP').addEventListener('change', function() {
-  refSettings.mvpSuggestions = this.checked;
-});
-document.getElementById('toggleExport').addEventListener('change', function() {
-  refSettings.matchExport = this.checked;
-  document.querySelector('[onclick="exportMatchLog()"]').style.display = this.checked ? 'inline-block' : 'none';
-});
-document.getElementById('toggleAnalysis').addEventListener('change', function() {
-  refSettings.survivalAnalysis = this.checked;
-});
+        const team = getPlayerTeam(playerName);
+        if (!team) {
+            alert('Invalid player selected.');
+            return;
+        }
 
-function toggleSettings() {
-  const panel = document.getElementById('settingsPanel');
-  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        let penaltyMessage = '';
+        
+        if (scorePenalty > 0) {
+            const opposingTeam = team === 'Team 1' ? 2 : 1;
+            for (let i = 0; i < scorePenalty; i++) {
+                // Use adjustScore with manualChange=true so it uses increment=1
+                adjustScore(opposingTeam, 1, true); 
+            }
+            penaltyMessage += ` (+${scorePenalty} points to opposing team)`;
+        }
+        
+        if (timePenalty > 0) {
+            globalTime += timePenalty;
+            updateDisplay();
+            penaltyMessage += ` (+${timePenalty}s added to run time)`;
+        }
+        
+        let action = 'custom';
+        if (type === 'Minor') {
+            playerFouls[playerName].Minor++;
+            action = 'minor';
+        } else if (type === 'Major') {
+            playerFouls[playerName].Major++;
+            action = 'major';
+        } else if (type === 'Disqualifying') {
+            playerFouls[playerName].DQ = true;
+            action = 'disqualify';
+            penaltyMessage += ' - MATCH DISQUALIFICATION!';
+        }
+
+        const logMsg = `(R${currentRound}, G${currentGame}) ${currentTagging} tagging — ${playerName} (${team}) committed a ${type.toUpperCase()} foul: "${description}"${penaltyMessage}`;
+        logAction(logMsg, true);
+        
+        foulLog.push({
+            id: foulIdCounter++, // NEW: Assign unique ID
+            time: formatTime(globalTime),
+            round: currentRound,
+            game: currentGame,
+            player: playerName,
+            team: team,
+            type: type,
+            action: action,
+            description: description,
+            manualScore: scorePenalty, // Correctly records the score added to opponent
+            manualTime: timePenalty // Correctly records the time added to global time
+        });
+        
+        updatePlayerFoulDisplays();
+        closeCustomFoulModal();
+    }
+
+    function switchGame() {
+      currentGame = currentGame === 1 ? 2 : 1;
+      updateDisplay();
+      logAction(`Game manually switched to Game ${currentGame}`);
+    }
+
+    function analyzePerformance() {
+    if (!refSettings.survivalAnalysis) return;
+      if (performanceLog.length < 2) return;
+
+      const runnerStats = {};
+      const roundDurations = {};
+
+      performanceLog.forEach(entry => {
+        const { runnerTeam, round, duration } = entry;
+        if (!runnerStats[runnerTeam]) runnerStats[runnerTeam] = [];
+        runnerStats[runnerTeam].push(duration);
+        if (!roundDurations[round]) roundDurations[round] = [];
+        roundDurations[round].push(duration);
+      });
+
+      for (const team in runnerStats) {
+        const times = runnerStats[team];
+        const avg = times.reduce((a, b) => a + b, 0) / times.length;
+        const fullSurvivals = times.filter(t => t >= refSettings.timeLimit).length;
+        logToLogPanel(`${team} average survival: ${formatTime(Math.round(avg))} (${fullSurvivals} full holds)`);
+      }
+
+      let fastestRound = null;
+      let fastestTime = Infinity;
+      for (const round in roundDurations) {
+        const total = roundDurations[round].reduce((a, b) => a + b, 0);
+        if (total < fastestTime) {
+          fastestTime = total;
+          fastestRound = round;
+        }
+      }
+
+      logToLogPanel(`Fastest round: Round ${fastestRound} with total survival ${formatTime(fastestTime)}`);
+    }
+
+    function generateRoundRecap(roundNum) {
+    if (!refSettings.autoRecap) return;
+      const entries = performanceLog.filter(e => e.round === roundNum);
+      if (entries.length < 2) return;
+
+      const recapLines = [`— ROUND ${roundNum} RECAP —`];
+      let scoreChange = { 'Team 1': 0, 'Team 2': 0 };
+
+      entries.forEach(e => {
+        recapLines.push(`${e.runnerTeam} ran for ${formatTime(e.duration)}`);
+      });
+
+      const [game1, game2] = entries.filter(e => e.round === roundNum);
+      
+      const fullTime = refSettings.timeLimit;
+      
+      if (game1.duration !== fullTime || game2.duration !== fullTime) {
+        const winner = game1.duration > game2.duration ? game1.runnerTeam : game2.runnerTeam;
+        scoreChange[winner] += refSettings.scoreIncrement;
+        recapLines.push(`${winner} awarded +${refSettings.scoreIncrement} point for longer survival`);
+      } else {
+        recapLines.push(`Both teams survived full ${formatTime(fullTime)} — no score change`);
+      }
+
+      // Apply score
+      team1Score += scoreChange['Team 1'];
+      team2Score += scoreChange['Team 2'];
+      updateScore();
+
+      recapLines.forEach(line => logToLogPanel(line));
+    }
+
+    function exportMatchLog() {
+    if (!refSettings.matchExport) return;
+      const logEntries = document.querySelectorAll('#logContainer .log-entry');
+      let logText = '— GBZ MATCH LOG —\n\n';
+
+      logEntries.forEach(entry => {
+        logText += entry.textContent.trim() + '\n';
+      });
+
+      const logWindow = window.open('', 'MatchLogExport', 'width=600,height=600');
+      logWindow.document.write('<pre style="white-space:pre-wrap;font-family:monospace;padding:20px;background:#0d1117;color:#fff;">' + logText + '</pre>');
+      logWindow.document.title = 'GBZ Match Log Export';
+
+      const blob = new Blob([logText], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `GBZ_Match_Log_R${currentRound}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      logAction('Match Log Exported');
+    }
+    
+    // NEW FUNCTION: Exports the foulLog array to a TXT file.
+    function exportFoulLog() {
+        if (foulLog.length === 0) {
+            logAction('Foul Log is empty. Nothing to export.');
+            return;
+        }
+
+        let logText = '— GBZ MATCH FOUL LOG —\n';
+        logText += `Match State: R${currentRound}, G${currentGame}\n\n`;
+
+        foulLog.forEach((foul) => {
+            logText += `[FOUL ID: ${foul.id}] Time: ${foul.time} (R${foul.round}, G${foul.game})\n`;
+            logText += `  Player: ${foul.player} (${foul.team})\n`;
+            logText += `  Type: ${foul.type} (${foul.action})\n`;
+            logText += `  Description: ${foul.description}\n`;
+            if (foul.manualScore > 0) {
+                logText += `  Score Penalty: +${foul.manualScore} to Opponent\n`;
+            }
+            if (foul.manualTime > 0) {
+                logText += `  Time Penalty: +${foul.manualTime}s to Timer\n`;
+            }
+            logText += '---------------------------------\n';
+        });
+
+        const blob = new Blob([logText], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `GBZ_Foul_Log_R${currentRound}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        logAction('Foul Log Exported');
+        closeFoulHistoryModal();
+    }
+    
+    // MATCH SCHEDULER LOGIC 
+
+    function renderMatchSchedule() {
+        const container = document.getElementById('scheduleContainer');
+        // This container no longer exists in the main view, so we exit if not found.
+        if (!container) return; 
+        
+        container.innerHTML = '';
+        
+        const visibleMatches = matchSchedule
+            .filter(m => m.status === 'In Progress' || m.status === 'Pending')
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        visibleMatches.forEach(match => {
+            const matchDiv = document.createElement('div');
+            matchDiv.className = 'schedule-entry';
+            matchDiv.style.marginBottom = '10px';
+            matchDiv.style.padding = '10px';
+            matchDiv.style.borderRadius = '5px';
+            matchDiv.style.border = '1px solid var(--border-color)';
+            matchDiv.style.display = 'flex';
+            matchDiv.style.justifyContent = 'space-between';
+            matchDiv.style.alignItems = 'center';
+            matchDiv.style.backgroundColor = match.status === 'In Progress' ? '#330000' : 'var(--dark-bg)';
+            
+            let statusColor = '#8b949e'; 
+            if (match.status === 'Pending') {
+                statusColor = '#ffc107'; 
+            } else if (match.status === 'In Progress') {
+                statusColor = 'var(--main-accent)'; 
+            } else if (match.status === 'Completed') {
+                statusColor = '#3fb950'; 
+            }
+            
+            const detailsHTML = `
+                <div style="flex-grow: 1;">
+                    <div style="font-weight: bold; color: var(--highlight-text);">${match.teams}</div>
+                    <div style="font-size: 0.85em; color: #8b949e;">${match.tournament} | ${formatDate(match.date)} ${match.time} | <span style="color:${statusColor};">${match.status}</span></div>
+                </div>
+            `;
+            
+            matchDiv.innerHTML = detailsHTML;
+            
+            // Start of Action Group
+            const actionGroup = document.createElement('div');
+            actionGroup.style.display = 'flex';
+            actionGroup.style.gap = '5px';
+            actionGroup.style.alignItems = 'center';
+
+            if (match.status === 'Pending') {
+                const startBtn = document.createElement('button');
+                startBtn.textContent = 'Start Match';
+                startBtn.style.padding = '5px 10px';
+                startBtn.style.fontSize = '0.9em';
+                startBtn.style.flexShrink = '0';
+                startBtn.style.minWidth = '100px';
+                startBtn.style.backgroundColor = 'var(--main-accent)';
+                startBtn.style.color = 'var(--dark-bg)';
+                startBtn.onclick = () => startMatch(match.id, match.teams);
+                actionGroup.appendChild(startBtn);
+            }
+
+            // ADDED REMOVE/UNDO BUTTON
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = '❌ Remove';
+            removeBtn.style.padding = '5px 10px';
+            removeBtn.style.fontSize = '0.9em';
+            removeBtn.style.flexShrink = '0';
+            removeBtn.style.minWidth = '80px';
+            removeBtn.style.backgroundColor = 'transparent';
+            removeBtn.style.borderColor = '#ff4d4d';
+            removeBtn.style.color = '#ff4d4d';
+            removeBtn.style.textTransform = 'none';
+
+            removeBtn.onclick = (e) => {
+                e.stopPropagation(); // Prevent potential parent click logic
+                // Use the new confirmation modal function
+                promptRemoveMatch(match.id, match.teams);
+            };
+            actionGroup.appendChild(removeBtn);
+
+            matchDiv.appendChild(actionGroup); // Append the button group
+            
+            container.appendChild(matchDiv);
+        });
+        
+        if (visibleMatches.length === 0) {
+            container.textContent = 'No pending or in-progress matches.';
+            container.style.color = '#8b949e';
+        }
+    }
+
+    /**
+     * Removes a match from the schedule by ID.
+     */
+    function removeMatch(matchId) {
+        const matchToRemove = matchSchedule.find(m => m.id === matchId);
+
+        if (!matchToRemove) {
+            logAction(`ERROR: Match ID ${matchId} not found for removal.`);
+            return;
+        }
+
+        // 1. Remove from schedule
+        matchSchedule = matchSchedule.filter(m => m.id !== matchId);
+
+        // 2. Check if the removed match was 'In Progress' and handle
+        if (matchToRemove.status === 'In Progress') {
+            logAction(`WARNING: Currently In Progress match (${matchToRemove.teams}) removed. Resetting Scoreboard and Timer state.`);
+            // Reset relevant state variables
+            team1Score = 0;
+            team2Score = 0;
+            currentRound = 1;
+            currentGame = 1;
+            globalTime = 0;
+            savedTime = null;
+            
+            // Re-initialize player fouls to clear any for the old match
+            initializePlayerFouls(); 
+            foulLog = [];
+            foulIdCounter = 1; // Reset foul counter
+            
+            updateScore();
+            updateDisplay();
+            updatePlayerFoulDisplays();
+        }
+        
+        logAction(`SCHEDULE: Removed match ID ${matchId} - ${matchToRemove.teams}.`);
+        renderMatchSchedule(); // Re-render if it were visible (harmless if not)
+        
+        // Always re-render the open calendar modal if it exists and a match was removed
+        if (document.getElementById('matchCalendarModal').style.display === 'flex') {
+            openMatchCalendarModal(); 
+        }
+    }
+
+
+    function startMatch(matchId, teams) {
+        // 1. Reset everything for a new match
+        team1Score = 0;
+        team2Score = 0;
+        currentRound = 1;
+        currentGame = 1;
+        globalTime = 0;
+        savedTime = null;
+        performanceLog = [];
+        foulLog = [];
+        foulIdCounter = 1; // Reset foul counter
+        initializePlayerFouls(); 
+
+        updateScore();
+        updateDisplay();
+        updatePlayerFoulDisplays();
+        
+        // 2. Set all other "In Progress" matches back to "Completed" for cleanup
+        matchSchedule.forEach(m => {
+            if (m.status === 'In Progress') m.status = 'Completed';
+        });
+        
+        // 3. Update the selected match status
+        const match = matchSchedule.find(m => m.id === matchId);
+        if (match) {
+            match.status = 'In Progress';
+            logAction(`Match ${matchId} (${teams}) started. Scoreboard cleared.`);
+        }
+        
+        renderMatchSchedule(); // Re-render if it were visible (harmless if not)
+
+        // Always re-render the open calendar modal if it exists
+        if (document.getElementById('matchCalendarModal').style.display === 'flex') {
+            openMatchCalendarModal(); 
+        }
+    }
+    
+    // Schedule History Modal Functions 
+    function openScheduleHistoryModal() {
+        const modal = document.getElementById('scheduleHistoryModal');
+        const container = document.getElementById('scheduleHistoryContainer');
+        
+        container.innerHTML = ''; 
+
+        if (matchSchedule.length === 0) {
+            container.innerHTML = '<p style="color:#8b949e;">No matches have been scheduled or completed yet.</p>';
+        } else {
+            matchSchedule.slice().reverse().forEach(match => {
+                const entry = document.createElement('div');
+                entry.className = 'history-log-entry';
+                
+                let statusColor = '#8b949e';
+                if (match.status === 'Pending') statusColor = '#ffc107';
+                else if (match.status === 'In Progress') statusColor = 'var(--main-accent)';
+                else if (match.status === 'Completed') statusColor = '#3fb950';
+
+                entry.innerHTML = `
+                    <div style="font-size:1.1em; color:var(--highlight-text);">Match ID: ${match.id} - ${match.teams}</div>
+                    <div style="margin-top:5px;">
+                        <span>Status:</span> <span style="color:${statusColor};">${match.status}</span><br>
+                        <span>Tournament:</span> ${match.tournament}<br>
+                        <span>Date/Time:</span> ${formatDate(match.date)} ${match.time}
+                    </div>
+                `;
+                container.appendChild(entry);
+            });
+        }
+        
+        modal.style.display = 'flex';
+    }
+
+    function closeScheduleHistoryModal() {
+        document.getElementById('scheduleHistoryModal').style.display = 'none';
+    }
+
+    // Add Match Modal Functions (Unchanged)
+    function openAddMatchModal() {
+        document.getElementById('amDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('addMatchModal').style.display = 'flex';
+    }
+
+    function closeAddMatchModal() {
+        document.getElementById('addMatchModal').style.display = 'none';
+        // Re-open calendar if it was open before adding the match
+        if (document.getElementById('matchCalendarModal').style.display === 'flex') {
+             openMatchCalendarModal();
+        }
+    }
+
+    function addMatchToSchedule() {
+        const team1 = document.getElementById('amTeam1').value;
+        const team2 = document.getElementById('amTeam2').value;
+        const tournament = document.getElementById('amTournament').value;
+        const date = document.getElementById('amDate').value;
+        const time = document.getElementById('amTime').value;
+
+        if (!team1 || !team2 || !date || !time) {
+            alert('Please fill in all required match fields.');
+            return;
+        }
+
+        const newMatch = {
+            id: matchIdCounter++,
+            teams: `${team1} vs ${team2}`,
+            tournament: tournament,
+            time: time,
+            date: date,
+            status: 'Pending'
+        };
+
+        matchSchedule.push(newMatch);
+        logAction(`New match scheduled: ${newMatch.teams} (${newMatch.tournament})`);
+        renderMatchSchedule();
+        closeAddMatchModal();
+    }
+    
+    // Match Calendar Modal Functions (Modified to include start/remove buttons)
+    function openMatchCalendarModal() {
+        const modal = document.getElementById('matchCalendarModal');
+        const container = document.getElementById('matchCalendarContainer');
+        
+        container.innerHTML = ''; 
+
+        if (matchSchedule.length === 0) {
+            container.innerHTML = '<p style="color:#8b949e;">No matches scheduled. Use "➕ Add New Match" below to start.</p>';
+            modal.style.display = 'flex';
+            return;
+        }
+
+        const sortedSchedule = matchSchedule.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+
+        let currentDay = '';
+        sortedSchedule.forEach(match => {
+            const matchDay = formatDate(match.date) + ' (' + match.date + ')';
+            
+            if (matchDay !== currentDay) {
+                const dayHeader = document.createElement('h3');
+                dayHeader.style.color = 'var(--main-accent)';
+                dayHeader.style.marginTop = '20px';
+                dayHeader.style.marginBottom = '10px';
+                dayHeader.textContent = matchDay;
+                container.appendChild(dayHeader);
+                currentDay = matchDay;
+            }
+            
+            const entry = document.createElement('div');
+            entry.className = 'calendar-entry';
+            
+            let statusColor = '#8b949e';
+            let bgColor = '#161b22';
+            if (match.status === 'Pending') {
+                statusColor = '#ffc107';
+            } else if (match.status === 'In Progress') {
+                statusColor = 'var(--main-accent)';
+                bgColor = '#330000';
+            } else if (match.status === 'Completed') {
+                statusColor = '#3fb950';
+            }
+
+            entry.style.backgroundColor = bgColor;
+            entry.style.border = '1px solid var(--border-color)';
+            entry.style.padding = '10px';
+            entry.style.marginBottom = '10px';
+            entry.style.borderRadius = '6px';
+
+            const detailsHTML = `
+                <div style="font-size:1.1em; color:var(--highlight-text); display: flex; justify-content: space-between; align-items:center;">
+                    <span>${match.time} - ${match.teams}</span>
+                    <span style="color:${statusColor}; font-size: 0.9em; font-weight: normal; margin-left: 10px;">${match.status.toUpperCase()}</span>
+                </div>
+                <div style="font-size: 0.9em; margin-top:5px; color: #8b949e;">
+                    <span>Tournament:</span> ${match.tournament} | Match ID: ${match.id}
+                </div>
+            `;
+            
+            entry.innerHTML = detailsHTML;
+
+            // Action buttons container for start/remove
+            const actionGroup = document.createElement('div');
+            actionGroup.className = 'button-group';
+            actionGroup.style.marginTop = '10px';
+            actionGroup.style.marginBottom = '0px';
+
+            if (match.status === 'Pending') {
+                const startBtn = document.createElement('button');
+                startBtn.textContent = 'Start Match';
+                startBtn.style.padding = '5px 10px';
+                startBtn.style.fontSize = '0.9em';
+                startBtn.style.minWidth = '100px';
+                startBtn.style.backgroundColor = 'var(--main-accent)';
+                startBtn.style.color = 'var(--dark-bg)';
+                startBtn.onclick = () => startMatch(match.id, match.teams);
+                actionGroup.appendChild(startBtn);
+            }
+
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = '❌ Remove';
+            removeBtn.style.padding = '5px 10px';
+            removeBtn.style.fontSize = '0.9em';
+            removeBtn.style.minWidth = '80px';
+            removeBtn.style.backgroundColor = 'transparent';
+            removeBtn.style.borderColor = '#ff4d4d';
+            removeBtn.style.color = '#ff4d4d';
+            removeBtn.style.textTransform = 'none';
+            removeBtn.onclick = () => promptRemoveMatch(match.id, match.teams);
+            actionGroup.appendChild(removeBtn);
+            
+            entry.appendChild(actionGroup);
+
+            container.appendChild(entry);
+        });
+        
+        modal.style.display = 'flex';
+    }
+
+    function closeMatchCalendarModal() {
+        document.getElementById('matchCalendarModal').style.display = 'none';
+    }
+
+    // Foul History Modal Logic
+    function openFoulHistoryModal() {
+        renderFoulHistory();
+        document.getElementById('foulHistoryModal').style.display = 'flex';
+    }
+
+    function closeFoulHistoryModal() {
+        document.getElementById('foulHistoryModal').style.display = 'none';
+    }
+
+    function renderFoulHistory() {
+        const container = document.getElementById('foulHistoryContainer');
+        container.innerHTML = '';
+        
+        if (foulLog.length === 0) {
+            container.innerHTML = '<p style="color:#8b949e;">No fouls have been logged yet.</p>';
+            return;
+        }
+
+        foulLog.slice().reverse().forEach(foul => {
+            const entry = document.createElement('div');
+            entry.className = 'foul-log-entry';
+            
+            let foulTypeColor = '#ffc107'; 
+            if (foul.type === 'Major' || foul.type === 'Disqualifying') foulTypeColor = '#ff4d4d'; 
+            
+            entry.innerHTML = `
+                <div style="font-size:1.1em; color:var(--highlight-text); border-bottom: 1px solid #30363d; padding-bottom: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color:${foulTypeColor};">#${foul.id} - R${foul.round}, G${foul.game} @ ${foul.time}</span>
+                    <button onclick="promptRemoveFoul(${foul.id})" style="padding: 5px 10px; font-size: 0.8em; background-color: #550000; border-color: #ff4d4d; color: var(--highlight-text); flex-shrink: 0; margin: 0; text-transform: none;">
+                        ❌ Remove Foul
+                    </button>
+                </div>
+                <div>
+                    <span>Player:</span> ${foul.player} (${foul.team})<br>
+                    <span>Type:</span> ${foul.type} (${foul.action})<br>
+                    <span>Desc:</span> ${foul.description}<br>
+                    ${foul.manualScore > 0 ? `<span>Score Penalty:</span> +${foul.manualScore} to Opponent<br>` : ''}
+                    ${foul.manualTime > 0 ? `<span>Time Penalty:</span> +${foul.manualTime}s to Timer<br>` : ''}
+                </div>
+            `;
+            container.appendChild(entry);
+        });
+    }
+
+    // --- NEW CONFIRMATION MODAL LOGIC ---
+    
+    /**
+     * Opens the generic confirmation modal.
+     * @param {string} message The message to display to the user (can contain HTML).
+     * @param {function} callback The function to execute if the user confirms (clicks 'Yes').
+     */
+    function openConfirmationModal(message, callback) {
+        confirmationCallback = callback;
+        document.getElementById('confirmMessage').innerHTML = message;
+        document.getElementById('confirmationModal').style.display = 'flex';
+    }
+
+    function closeConfirmationModal() {
+        document.getElementById('confirmationModal').style.display = 'none';
+        confirmationCallback = null;
+    }
+
+    /**
+     * Executes the stored callback based on user choice.
+     * @param {boolean} confirmed True if the user clicked 'Yes, Do It'.
+     */
+    function executeConfirmation(confirmed) {
+        // Important: Close the confirmation modal first before executing callback
+        document.getElementById('confirmationModal').style.display = 'none'; 
+        
+        if (confirmed && confirmationCallback) {
+            confirmationCallback();
+        }
+        confirmationCallback = null; // Clear callback regardless
+    }
+    
+    // --- Specific Wrappers for Confirmation ---
+
+    // 1. Wrapper for Undo Last Foul (Updated to use removeFoul)
+    // See promptUndoLastFoul above
+
+    // 2. Wrapper for Match Removal (Unchanged)
+    function promptRemoveMatch(matchId, teams) {
+        const match = matchSchedule.find(m => m.id === matchId);
+        let warning = match.status === 'In Progress' ? " If this match is 'In Progress', all current scoreboard/timer data will be lost." : "";
+        
+        const message = `Are you sure you want to remove the scheduled match: <strong>${teams}</strong>?${warning}`;
+        
+        // Pass a function that calls removeMatch(matchId) to the modal
+        openConfirmationModal(message, () => removeMatch(matchId));
+    }
+
+
+    // --- MODAL CONTROL FUNCTIONS (Unchanged) ---
+    
+   function toggleSettingsModal() {
+    const modal = document.getElementById('settingsModal');
+    const isOpening = modal.style.display === 'none' || modal.style.display === '';
+
+    if (isOpening) {
+        modal.style.display = 'flex';
+    } else {
+        // --- SAVING LOGIC WHEN CLOSING ---
+        
+        // 1. Update the Team Size from the dropdown
+        refSettings.teamSize = parseInt(document.getElementById('teamSizeSelect').value);
+        
+        // 2. Map the names from the 8 input fields into your settings object
+        refSettings.playerNames['Team 1'] = [
+            document.getElementById('t1p1Name').value,
+            document.getElementById('t1p2Name').value,
+            document.getElementById('t1p3Name').value,
+            document.getElementById('t1p4Name').value
+        ];
+        refSettings.playerNames['Team 2'] = [
+            document.getElementById('t2p1Name').value,
+            document.getElementById('t2p2Name').value,
+            document.getElementById('t2p3Name').value,
+            document.getElementById('t2p4Name').value
+        ];
+
+        // 3. IMPORTANT: Tell the dashboard to redraw the left column now!
+        renderPlayerFoulControls(); 
+        
+        modal.style.display = 'none';
+    }
 }
 
-function checkScrollHint() {
-  const scrollHint = document.getElementById('scrollHint');
-  const atBottom = (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 5;
-  scrollHint.style.display = atBottom ? 'none' : 'block';
+   // Inside toggleSettingsModal, when closing/saving:
+if (document.getElementById('settingsModal').style.display !== 'none') {
+    // Save Team Size
+    refSettings.teamSize = parseInt(document.getElementById('teamSizeSelect').value);
+
+    // Save all 8 potential names
+    refSettings.playerNames['Team 1'] = [
+        document.getElementById('t1p1Name').value,
+        document.getElementById('t1p2Name').value,
+        document.getElementById('t1p3Name').value,
+        document.getElementById('t1p4Name').value
+    ];
+    refSettings.playerNames['Team 2'] = [
+        document.getElementById('t2p1Name').value,
+        document.getElementById('t2p2Name').value,
+        document.getElementById('t2p3Name').value,
+        document.getElementById('t2p4Name').value
+    ];
+
+    // Refresh the dashboard UI
+    renderPlayerFoulControls(); 
+    initializePlayerFouls(); // Reset foul tracking for the new names/sizes
 }
 
-// Run on scroll and on load
-window.addEventListener('scroll', checkScrollHint);
-window.addEventListener('load', checkScrollHint);
+    function toggleDeepcheckModal() {
+      const panel = document.getElementById('deepcheckModal');
+      panel.style.display = panel.style.display === 'none' ? 'flex' : 'none';
+      if (panel.style.display === 'flex') {
+          renderDeepcheckDomains();
+      }
+    }
 
-// Clicking the arrow scrolls to bottom
-document.getElementById('scrollHint').addEventListener('click', () => {
-  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-});
+    function applySettings() {
+        document.documentElement.style.setProperty('--main-accent', refSettings.scoreColor);
+        document.getElementById('savedTimeLabel').textContent = refSettings.savedTimeLabel;
+        
+        const deepcheckBtn = document.querySelector('[onclick="toggleDeepcheckModal()"]');
+        if (deepcheckBtn) deepcheckBtn.style.display = refSettings.hideDeepcheck ? 'none' : 'block';
+        
+        document.getElementById('exportLogBtn').style.display = refSettings.matchExport ? 'block' : 'none';
 
-// Don't add beyond here
+        totalRounds = refSettings.defaultMaxRounds;
+        updateDisplay();
+    }
 
-function logAction(message, isScore = false) {
-if (!refSettings.showSystemLogs) return;
-  const time = formatTime(globalTime);
-  const round = currentRound;
-  const game = currentGame;
-  const tagging = currentTagging;
+    function setupSettingsListeners() {
+        document.getElementById('timeLimitInput').addEventListener('input', function() {
+            refSettings.timeLimit = parseInt(this.value) || 180;
+        });
+        document.getElementById('useCountdownCheck').addEventListener('change', function() {
+            refSettings.useCountdown = this.checked;
+        });
+        document.getElementById('defaultMaxRoundsInput').addEventListener('input', function() {
+            refSettings.defaultMaxRounds = parseInt(this.value) || 8;
+            totalRounds = refSettings.defaultMaxRounds;
+            updateDisplay();
+        });
+        document.getElementById('scoreIncrementInput').addEventListener('input', function() {
+            refSettings.scoreIncrement = parseInt(this.value) || 1;
+        });
+        document.getElementById('autoRecapCheck').addEventListener('change', function() {
+            refSettings.autoRecap = this.checked;
+        });
+        
+        document.getElementById('minorFoulActionSelect').addEventListener('change', function() {
+            refSettings.minorFoulAction = this.value;
+        });
+        document.getElementById('majorFoulActionSelect').addEventListener('change', function() {
+            refSettings.majorFoulAction = this.value;
+        });
 
-  const entry = document.createElement('div');
-  entry.className = 'log-entry' + (isScore ? ' score' : '');
-  entry.innerHTML = `<span>[${time}]</span> (Round ${round}, Game ${game}) ${tagging} tagging — ${message}`;
-  document.getElementById('logContainer').prepend(entry);
-}
 
-function logToLogPanel(message) {
-  if (!refSettings.showSystemLogs) return;
-  const entry = document.createElement('div');
-  entry.className = 'log-entry';
-  entry.innerHTML = `<span>[SYSTEM]</span> ${message}`;
-  document.getElementById('logContainer').prepend(entry);
-}
+        document.getElementById('toggleSystemLogs').addEventListener('change', function() {
+            refSettings.showSystemLogs = this.checked;
+        });
+        document.getElementById('toggleDetailedScore').addEventListener('change', function() {
+            refSettings.detailedScoreLogging = this.checked;
+        });
+        document.getElementById('toggleSurvivalAnalysis').addEventListener('change', function() {
+            refSettings.survivalAnalysis = this.checked;
+        });
+        document.getElementById('toggleExport').addEventListener('change', function() {
+            refSettings.matchExport = this.checked;
+            document.getElementById('exportLogBtn').style.display = this.checked ? 'block' : 'none';
+        });
 
-updateDisplay();
+        document.getElementById('accentColorInput').addEventListener('input', function() {
+            refSettings.scoreColor = this.value;
+            document.documentElement.style.setProperty('--main-accent', this.value);
+        });
+        document.getElementById('savedTimeLabelInput').addEventListener('input', function() {
+            refSettings.savedTimeLabel = this.value;
+            document.getElementById('savedTimeLabel').textContent = this.value;
+        });
+        document.getElementById('toggleMVP').addEventListener('change', function() {
+            refSettings.mvpSuggestions = this.checked;
+        });
+        document.getElementById('hideDeepcheckToggle').addEventListener('change', function() {
+            refSettings.hideDeepcheck = this.checked;
+            applySettings(); 
+        });
+        
+        document.getElementById('t1p1Name').addEventListener('input', function() {
+            refSettings.playerNames['Team 1'][0] = this.value || 'T1 Player A';
+            initializePlayerFouls();
+            renderPlayerFoulControls();
+        });
+        document.getElementById('t1p2Name').addEventListener('input', function() {
+            refSettings.playerNames['Team 1'][1] = this.value || 'T1 Player B';
+            initializePlayerFouls();
+            renderPlayerFoulControls();
+        });
+        document.getElementById('t2p1Name').addEventListener('input', function() {
+            refSettings.playerNames['Team 2'][0] = this.value || 'T2 Player A';
+            initializePlayerFouls();
+            renderPlayerFoulControls();
+        });
+        document.getElementById('t2p2Name').addEventListener('input', function() {
+            refSettings.playerNames['Team 2'][1] = this.value || 'T2 Player B';
+            initializePlayerFouls();
+            renderPlayerFoulControls();
+        });
+
+        document.querySelectorAll('.setting-tab-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                switchTab(this.getAttribute('data-tab'));
+            });
+        });
+    }
+
+    function loadSettingsFromDOM() {
+        refSettings.timeLimit = parseInt(document.getElementById('timeLimitInput').value) || 180;
+        refSettings.useCountdown = document.getElementById('useCountdownCheck').checked;
+        refSettings.defaultMaxRounds = parseInt(document.getElementById('defaultMaxRoundsInput').value) || 8;
+        refSettings.scoreIncrement = parseInt(document.getElementById('scoreIncrementInput').value) || 1;
+        refSettings.autoRecap = document.getElementById('autoRecapCheck').checked;
+        
+        refSettings.minorFoulAction = document.getElementById('minorFoulActionSelect').value;
+        refSettings.majorFoulAction = document.getElementById('majorFoulActionSelect').value;
+        
+        refSettings.showSystemLogs = document.getElementById('toggleSystemLogs').checked;
+        refSettings.detailedScoreLogging = document.getElementById('toggleDetailedScore').checked;
+        refSettings.survivalAnalysis = document.getElementById('toggleSurvivalAnalysis').checked;
+        refSettings.matchExport = document.getElementById('toggleExport').checked;
+        
+        refSettings.scoreColor = document.getElementById('accentColorInput').value;
+        refSettings.savedTimeLabel = document.getElementById('savedTimeLabelInput').value;
+        refSettings.mvpSuggestions = document.getElementById('toggleMVP').checked;
+        refSettings.hideDeepcheck = document.getElementById('hideDeepcheckToggle').checked;
+        
+        refSettings.playerNames['Team 1'][0] = document.getElementById('t1p1Name').value;
+        refSettings.playerNames['Team 1'][1] = document.getElementById('t1p2Name').value;
+        refSettings.playerNames['Team 2'][0] = document.getElementById('t2p1Name').value;
+        refSettings.playerNames['Team 2'][1] = document.getElementById('t2p2Name').value;
+        
+        initializePlayerFouls(); 
+        applySettings();
+        renderPlayerFoulControls(); 
+    }
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.setting-tab-content').forEach(content => {
+            content.style.display = 'none';
+        });
+        document.querySelectorAll('.setting-tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        document.getElementById(`${tabName}-settings`).style.display = 'block';
+        document.querySelector(`.setting-tab-btn[data-tab="${tabName}"]`).classList.add('active');
+    }
+
+    // Initial setup on load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadSettingsFromDOM(); 
+        setupSettingsListeners();
+        switchTab('match'); 
+        renderMatchSchedule(); // This will fail gracefully as #scheduleContainer is gone.
+    });
+
+
+  // --- DEEPCHECK LOGIC (Unchanged) ---
+    const deepcheckDomains = {
+      "Mods": "Ensure user isn't using unauthorized mods.",
+      "Predictions": "Verify prediction rates.",
+      "World Scale": "Confirm user hasn't modified SteamVR's「World Scale」 option.",
+      "Low Refresh Rate": "Check frame rate stability.",
+      "Fake Menus": "Identify fake Quest menus and interactions.",
+      "Wireless PCVR": "Detect Wireless PCVR usage.",
+    };
+
+    function renderDeepcheckDomains() {
+      const menu = document.getElementById('deepcheckMenu');
+      menu.innerHTML = '';
+      const buttonGroup = document.createElement('div');
+      buttonGroup.className = 'button-group';
+      
+      for (const domain in deepcheckDomains) {
+        const btn = document.createElement('button');
+        btn.textContent = domain;
+        btn.onclick = () => showDeepcheckLogic(domain);
+        buttonGroup.appendChild(btn);
+      }
+      menu.appendChild(buttonGroup);
+    }
+
+    function openDemoVideo() {
+      window.open('https://youtu.be/StXA0C8KW1A', '_blank');
+    }
+
+    function showDeepcheckLogic(domain) {
+      const menu = document.getElementById('deepcheckMenu');
+      menu.innerHTML = `<h3 style="color:var(--main-accent);">${domain} Deepcheck</h3>`;
+
+      const domainMap = {
+          "Predictions": { checks: ["Slip Test", "Slap Test", "Disconnect Check"], functions: [showSlipTest, showSlapTest, showDCTest2] },
+          "Mods": { checks: ["File Check", "Speed Hack Check", "Tag Freeze Check"], functions: [showFileCheck, showSpeedHack, showTagFreezeTest] },
+          "World Scale": { checks: ["Long Arms Check"], functions: [showWorldScale] },
+          "Low Refresh Rate": { checks: ["Jump Check", "Disconnect Check"], functions: [showJumpTest, showDCTest] },
+          "Fake Menus": { checks: ["APK Check"], functions: [showAPKTest] },
+          "Wireless PCVR": { checks: [], functions: [] } 
+      };
+      
+      const domainInfo = domainMap[domain];
+      const desc = document.createElement('div');
+      desc.className = 'log-entry';
+      desc.innerHTML = `<span>${domain}:</span> ${deepcheckDomains[domain]}`;
+      menu.appendChild(desc);
+      
+      const buttonGroup = document.createElement('div');
+      buttonGroup.className = 'button-group';
+      
+      if (domainInfo) {
+          domainInfo.checks.forEach((checkName, index) => {
+              const btn = document.createElement('button');
+              btn.textContent = `🧪 ${checkName}`;
+              btn.onclick = domainInfo.functions[index];
+              buttonGroup.appendChild(btn);
+          });
+      }
+      menu.appendChild(buttonGroup);
+      
+      const backBtn = document.createElement('button');
+      backBtn.textContent = '← Back to Domains';
+      backBtn.onclick = renderDeepcheckDomains;
+      menu.appendChild(backBtn);
+    }
+    
+    // Individual Deepcheck Test Descriptions 
+
+    function createTestContent(title, description, domain) {
+      const menu = document.getElementById('deepcheckMenu');
+      menu.innerHTML = `<h3 style="color:var(--main-accent);">${title} Deepcheck</h3>`;
+
+      const videoNote = document.createElement('div');
+      videoNote.style.color = '#8b949e';
+      videoNote.style.marginTop = '10px';
+      videoNote.textContent = '🎥 Video example coming soon...';
+      menu.appendChild(videoNote);
+
+      const testDesc = document.createElement('div');
+      testDesc.className = 'log-entry';
+      testDesc.innerHTML = description;
+      menu.appendChild(testDesc);
+      
+      const backBtn = document.createElement('button');
+      backBtn.textContent = '← Back';
+      backBtn.onclick = () => showDeepcheckLogic(domain);
+      menu.appendChild(backBtn);
+    }
+
+    function showSlipTest() {
+      createTestContent('Slip Test', 
+        `<span>Slip Test:</span> Have the player wall-run from the stump wall branch up to the slippery wall. Once they reach it, they must place their hand on the slippery surface and remain still. If their hand sticks before sliding, or has heavily reduced sliding, they’re running a high prediction rate. Make sure to try this a few times as its not entirely accurate, sometimes Gorilla Tag can have issues after an update which causes this test to not be useful. This test reveals high predictions.`, 
+        'Predictions');
+    }
+
+    function showFileCheck() {
+      createTestContent('File Check', 
+        `<span>File Check:</span> Inspect the player's mod files for:
+         <ul style="text-align:left; margin-top:10px;">
+           <li><strong>Mod Legality</strong> — Ensure files are allowed in competitive.</li>
+           <li><strong>Modified Files</strong> — Look for renamed files, or modified configs.</li>
+          <label>Get the user to open their Gorilla Tag installation folder (usually in SteamApps/common/Gorilla Tag) and navigate to the "bepinex" and "plugins" folder. Look for any files that are known to be disallowed in competitive play, such as mods that provide unfair advantages (e.g., wallhacks, speed hacks). Additionally, check for any files that have been renamed to hide their presence or any configuration files that have been altered to change game behavior. </label>
+         </ul>
+         This deepcheck reveals mods in the user's files.`, 
+        'Mods');
+    }
+
+    function showSpeedHack() {
+      createTestContent('Speed Hack Check', 
+        `<span>Speed Hack Check:</span> Inspect the player for speed hacks:
+         <ul style="text-align:left; margin-top:10px;">
+           <span>To check for speed hacks, get the player to go to the floor in gazebo behind the scoreboard, make them put both hands on the edge and have them lift themselves onto gazebo, if they slip like an ice surface then they are using a speed hack. Note that a very slight slip is normal due to the nature of SteamVR physics, but if they slide a significant distance quickly then they are using a speed hack. </span>
+         </ul>
+         This deepcheck reveals speed hacks.`, 
+        'Mods');
+    }
+
+    function showWorldScale() {
+      createTestContent('World Scale Check', 
+        `<span>World Scale Check:</span> Inspect the player for World Scale modifications:
+         <ul style="text-align:left; margin-top:10px;">
+           <span>First off, get the player to take off any hat cosmetics, then get the user to put their hands on top of their head, not on the headset or in front of their head, but just the top of their actual head. If there is a gap then the user is likely using World Scale, ensure the user does not go into their SteamVR menu during this process.</span>
+         </ul>
+         This deepcheck reveals long arms/World Scale.`, 
+        'World Scale');
+    }
+
+    function showSlapTest() {
+      createTestContent('Slap Test Check', 
+        `<span>Slap Test:</span> Inspect the player for heightened predictions:
+         <ul style="text-align:left; margin-top:10px;">
+           <span>To perform the slap test, have the player stand still and then quickly slap their hands down in the air, the user should not touch the ground. Observe the movement and if they start hitting the floor then they likely have a lot of predictions.</span>
+         </ul>
+         This deepcheck reveals high predictions.`, 
+        'Predictions');
+    }
+
+    function showJumpTest() {
+      createTestContent('Jump Test Check', 
+        `<span>Jump Test:</span> Inspect the player for low refresh rate:
+         <ul style="text-align:left; margin-top:10px;">
+           <span>To perform the jump test, have the player stand still and then quickly jump up into the air, the user should jump a normal amount, if they jump low and you can jump significantly higher than this user then they likely have low herz. Note that this isn't 100% accurate and should never be the main check</span>
+         </ul>
+         This deepcheck reveals low refresh rate.`, 
+        'Low Refresh Rate');
+    }
+
+    function showAPKTest() {
+      createTestContent('APK Check', 
+        `<span>APK Check:</span> Inspect the player for APKs:
+         <ul style="text-align:left; margin-top:10px;">
+           <span>Have the user go into their Quest menu and look up, if the user sinks into the ground then they are using an APK</span>
+         </ul>
+         This deepcheck reveals APKs.`, 
+        'Fake Menus');
+    }
+
+    function showDCTest() {
+      createTestContent('Disconnect Check', 
+        `<span>Disconnect Check:</span> Inspect the player for high predictions and/or low refresh rate:
+         <ul style="text-align:left; margin-top:10px;">
+           <span>Have the user disconnect their left controller and put their hands up in the air, make them walk forwards and backwards fast in real life, if their hand goes in their chest at all that means they are using high predictions or low refresh rate.</span>
+         </ul>
+         This deepcheck reveals high predictions and/or low refresh rates.`, 
+        'Low Refresh Rate');
+    }
+
+    function showDCTest2() {
+      createTestContent('Disconnect Check', 
+        `<span>Disconnect Check:</span> Inspect the player for high predictions and/or low refresh rate:
+         <ul style="text-align:left; margin-top:10px;">
+           <span>Have the user disconnect their left controller and put their hands up in the air, make them walk forwards and backwards fast in real life, if their hand goes in their chest at all that means they are using high predictions or low refresh rate.</span>
+         </ul>
+         This deepcheck reveals high predictions and/or low refresh rates.`, 
+        'Predictions');
+    }
+
+    function showTagFreezeTest() {
+      createTestContent('Tag Freeze Check', 
+        `<span>Tag Freeze Check:</span> Inspect the player for speed boost or pull mods:
+         <ul style="text-align:left; margin-top:10px;">
+           <span>With tag freeze, have the user run backwards, if they arent almost the same speed then they likely have either speed boost or some sort of pull mod.</span>
+         </ul>
+         This deepcheck reveals speed boost and pull mods.`, 
+        'Mods');
+    }
+
+    // Logging functions
+    function logAction(message, isScore = false) {
+      if (!refSettings.showSystemLogs) return;
+      const time = formatTime(globalTime);
+      const round = currentRound;
+      const game = currentGame;
+      const tagging = currentTagging;
+
+      const entry = document.createElement('div');
+      entry.className = 'log-entry' + (isScore ? ' score' : '');
+      entry.innerHTML = `<span>[${time}]</span> (R${round}, G${game}) ${tagging} tagging — ${message}`;
+      
+      const logContainer = document.getElementById('logContainer');
+      logContainer.prepend(entry);
+      
+      logContainer.scrollTop = 0; 
+    }
+
+    function logToLogPanel(message) {
+      if (!refSettings.showSystemLogs) return;
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `<span>[SYSTEM]</span> ${message}`;
+      
+      const logContainer = document.getElementById('logContainer');
+      logContainer.prepend(entry);
+      
+      logContainer.scrollTop = 0; 
+    }
+
+    updateDisplay();
     updateScore();
+
+    // This runs the moment the page finishes loading
+document.addEventListener('DOMContentLoaded', () => {
+    initializePlayerFouls(); // Prepares the data objects
+    renderPlayerFoulControls(); // DRAW THE PLAYERS IN THE LEFT COLUMN
+});
+
+localStorage.setItem('refSuiteState', JSON.stringify(matchData));
   </script>
 </body>
 </html>
